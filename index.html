@@ -2022,6 +2022,95 @@
         margin: 8px 0 0;
       }
     }
+
+
+    /* スマホ縦向きで反復問題を開いた時だけ、画面全体を横向き表示にする。 */
+    @media (max-width: 950px) and (orientation: portrait) {
+      body.repeat-force-landscape {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        width: 100dvw;
+        height: 100dvh;
+        margin: 0;
+        padding: 0;
+        display: block;
+        overflow: hidden;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 100vh;
+        height: 100vw;
+        width: 100dvh;
+        height: 100dvw;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+        transform: translate(-50%, -50%) rotate(90deg);
+        transform-origin: center center;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide main {
+        padding: 12px 16px 16px;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .question-top {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .question-card {
+        padding: 12px 14px 16px;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .category-label {
+        margin-bottom: 2px;
+        font-size: 11px;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .question-text {
+        margin-bottom: 7px;
+        font-size: 17px;
+        line-height: 1.25;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .display-box.repeat {
+        min-height: 0;
+        padding: 6px 8px;
+        margin-bottom: 9px;
+        overflow-x: hidden;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .display-box.repeat .staff-wrap {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .choices {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .choice-btn {
+        min-height: 0;
+        padding: 10px 8px;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+
+      body.repeat-force-landscape .app.repeat-wide .actions {
+        margin-top: 12px;
+      }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
@@ -4010,6 +4099,7 @@
 
       if (app && screen !== quizScreen) {
         app.classList.remove("repeat-wide");
+        document.body.classList.remove("repeat-force-landscape");
         if (quizScreen) quizScreen.classList.remove("quiz-compact-question");
       }
 
@@ -4419,9 +4509,11 @@
 
     function renderDisplay(q) {
       const baseMode = getBaseMode(currentMode);
-      displayBox.className = "display-box" + (baseMode === "repeatOrder" ? " repeat" : "");
+      const isRepeatOrder = baseMode === "repeatOrder";
+      displayBox.className = "display-box" + (isRepeatOrder ? " repeat" : "");
 
-      if (app) app.classList.toggle("repeat-wide", baseMode === "repeatOrder");
+      if (app) app.classList.toggle("repeat-wide", isRepeatOrder);
+      document.body.classList.toggle("repeat-force-landscape", isRepeatOrder);
 
       if (baseMode === "noteName") {
         displayBox.innerHTML = createStaffHtml(q.display, { showReferenceNote: noteNameHint1Used });
@@ -4698,8 +4790,14 @@
       const maxRowMeasures = Math.max(
         ...Array.from({ length: rowCount }, (_, row) => rowBreaks[row + 1] - rowBreaks[row])
       );
-      const compactRepeatLayout = window.matchMedia && window.matchMedia("(max-width: 620px)").matches;
-      const landscapeRepeatLayout = window.matchMedia && window.matchMedia("(max-width: 950px) and (orientation: landscape)").matches;
+      const forcedLandscapeRepeatLayout = document.body.classList.contains("repeat-force-landscape")
+        && window.matchMedia
+        && window.matchMedia("(max-width: 950px) and (orientation: portrait)").matches;
+      const compactRepeatLayout = window.matchMedia
+        && window.matchMedia("(max-width: 620px)").matches
+        && !forcedLandscapeRepeatLayout;
+      const landscapeRepeatLayout = forcedLandscapeRepeatLayout
+        || (window.matchMedia && window.matchMedia("(max-width: 950px) and (orientation: landscape)").matches);
       const targetSvgWidth = compactRepeatLayout ? 760 : (landscapeRepeatLayout ? 960 : 1280);
       const minimumMeasureWidth = compactRepeatLayout ? 112 : (landscapeRepeatLayout ? 122 : 150);
       const maximumMeasureWidth = compactRepeatLayout ? 160 : (landscapeRepeatLayout ? 178 : 210);
