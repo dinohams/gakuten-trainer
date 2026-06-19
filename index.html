@@ -1934,6 +1934,29 @@
         grid-template-columns: 1fr;
       }
 
+      .app.repeat-wide .choices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .app.repeat-wide .choice-btn {
+        min-height: 0;
+        padding: 12px 9px;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .app.repeat-wide .display-box.repeat {
+        padding: 8px 6px;
+        overflow-x: hidden;
+      }
+
+      .app.repeat-wide .display-box.repeat .staff-wrap {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+      }
+
       .question-top {
         align-items: stretch;
         flex-direction: column;
@@ -4632,10 +4655,13 @@
       const maxRowMeasures = Math.max(
         ...Array.from({ length: rowCount }, (_, row) => rowBreaks[row + 1] - rowBreaks[row])
       );
-      const targetSvgWidth = 1280;
+      const compactRepeatLayout = window.matchMedia && window.matchMedia("(max-width: 620px)").matches;
+      const targetSvgWidth = compactRepeatLayout ? 760 : 1280;
+      const minimumMeasureWidth = compactRepeatLayout ? 112 : 150;
+      const maximumMeasureWidth = compactRepeatLayout ? 160 : 210;
       const measureWidth = Math.max(
-        150,
-        Math.min(210, Math.floor((targetSvgWidth - firstMeasureX - 70) / maxRowMeasures))
+        minimumMeasureWidth,
+        Math.min(maximumMeasureWidth, Math.floor((targetSvgWidth - firstMeasureX - 70) / maxRowMeasures))
       );
       const svgWidth = targetSvgWidth;
       const svgHeight = rowCount === 1 ? 184 : 282;
