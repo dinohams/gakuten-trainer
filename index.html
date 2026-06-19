@@ -2081,25 +2081,33 @@
         padding: 3px 1px;
         margin-bottom: 9px;
         border-radius: 13px;
-        overflow-x: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
       }
 
       body.repeat-mobile-compact .app.repeat-wide .display-box.repeat .staff-wrap {
-        width: 100%;
-        min-width: 0;
+        width: auto;
+        min-width: 760px;
+        max-width: none;
+        margin: 0;
+      }
+
+      body.repeat-mobile-compact .app.repeat-wide .display-box.repeat .staff-svg {
+        width: 760px;
         max-width: none;
       }
 
       body.repeat-mobile-compact .app.repeat-wide .choices {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
         gap: 8px;
       }
 
       body.repeat-mobile-compact .app.repeat-wide .choice-btn {
         min-height: 0;
-        padding: 10px 7px;
+        padding: 11px 10px;
         font-size: 14px;
-        line-height: 1.4;
+        line-height: 1.45;
       }
 
       body.repeat-mobile-compact .app.repeat-wide .actions {
