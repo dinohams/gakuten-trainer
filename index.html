@@ -1919,6 +1919,49 @@
       }
     }
 
+    @media (max-width: 950px) and (orientation: landscape) {
+      .app.repeat-wide main {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .app.repeat-wide .question-top {
+        gap: 8px;
+      }
+
+      .app.repeat-wide .question-card {
+        padding: 14px 16px 18px;
+      }
+
+      .app.repeat-wide .question-text {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+
+      .app.repeat-wide .display-box.repeat {
+        padding: 8px 10px;
+        margin-bottom: 10px;
+      }
+
+      .app.repeat-wide .display-box.repeat .staff-wrap {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+      }
+
+      .app.repeat-wide .choices {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .app.repeat-wide .choice-btn {
+        min-height: 0;
+        padding: 12px 10px;
+        font-size: 15px;
+        line-height: 1.4;
+      }
+    }
+
     @media (max-width: 620px) {
       body {
         padding: 12px;
@@ -4656,9 +4699,10 @@
         ...Array.from({ length: rowCount }, (_, row) => rowBreaks[row + 1] - rowBreaks[row])
       );
       const compactRepeatLayout = window.matchMedia && window.matchMedia("(max-width: 620px)").matches;
-      const targetSvgWidth = compactRepeatLayout ? 760 : 1280;
-      const minimumMeasureWidth = compactRepeatLayout ? 112 : 150;
-      const maximumMeasureWidth = compactRepeatLayout ? 160 : 210;
+      const landscapeRepeatLayout = window.matchMedia && window.matchMedia("(max-width: 950px) and (orientation: landscape)").matches;
+      const targetSvgWidth = compactRepeatLayout ? 760 : (landscapeRepeatLayout ? 960 : 1280);
+      const minimumMeasureWidth = compactRepeatLayout ? 112 : (landscapeRepeatLayout ? 122 : 150);
+      const maximumMeasureWidth = compactRepeatLayout ? 160 : (landscapeRepeatLayout ? 178 : 210);
       const measureWidth = Math.max(
         minimumMeasureWidth,
         Math.min(maximumMeasureWidth, Math.floor((targetSvgWidth - firstMeasureX - 70) / maxRowMeasures))
