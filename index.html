@@ -2087,14 +2087,14 @@
       }
 
       body.repeat-mobile-compact .app.repeat-wide .display-box.repeat .staff-wrap {
-        width: auto;
-        min-width: 760px;
+        width: var(--repeat-staff-width, 100%);
+        min-width: var(--repeat-staff-width, 100%);
         max-width: none;
         margin: 0;
       }
 
       body.repeat-mobile-compact .app.repeat-wide .display-box.repeat .staff-svg {
-        width: 760px;
+        width: 100%;
         max-width: none;
       }
 
@@ -4804,7 +4804,11 @@
         minimumMeasureWidth,
         Math.min(maximumMeasureWidth, Math.floor((targetSvgWidth - firstMeasureX - 70) / maxRowMeasures))
       );
-      const svgWidth = targetSvgWidth;
+      const neededSvgWidth = firstMeasureX + maxRowMeasures * measureWidth + 24;
+      const svgWidth = Math.max(targetSvgWidth, neededSvgWidth);
+      const repeatStaffWidthPercent = compactRepeatLayout
+        ? (svgWidth / targetSvgWidth) * 100
+        : 100;
       const svgHeight = rowCount === 1 ? 184 : 282;
 
       function getRowForIndex(index) {
@@ -4912,11 +4916,37 @@
       function segnoSymbolSvg(cx, cy, size = 30) {
         const scale = size / 30;
         return `
-          <g aria-label="セーニョ記号" transform="translate(${cx} ${cy}) scale(${scale})" fill="none" stroke="#202436" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M 9 -12 C 2 -17 -9 -13 -9 -5 C -9 1 -2 3 4 5 C 11 7 12 14 7 18 C 1 23 -9 20 -12 14" />
-            <line x1="-12" y1="19" x2="12" y2="-14" />
-            <circle cx="-11" cy="-7" r="1.8" fill="#202436" stroke="none" />
-            <circle cx="11" cy="12" r="1.8" fill="#202436" stroke="none" />
+          <g aria-label="セーニョ記号" transform="translate(${cx} ${cy}) scale(${scale})">
+            <text x="0" y="8" text-anchor="middle"
+              font-size="31" font-family="Georgia, 'Times New Roman', serif"
+              font-style="italic" font-weight="700" fill="#202436">S</text>
+            <line x1="-13" y1="14" x2="13" y2="-14"
+              stroke="#202436" stroke-width="2.5" stroke-linecap="round" />
+            <circle cx="-12" cy="-10" r="2.1" fill="#202436" />
+            <circle cx="12" cy="10" r="2.1" fill="#202436" />
+          </g>
+        `;
+      }
+
+      function trebleClefSvg(cx, staffTop) {
+        return `
+          <g aria-label="ト音記号"
+            transform="translate(${cx} ${staffTop + 2}) scale(0.78)"
+            fill="none" stroke="#202436" stroke-width="4.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 12 -18
+              C 27 -8 26 10 14 25
+              C 2 40 -6 52 -4 68
+              C -2 86 14 98 30 93
+              C 45 88 49 72 41 61
+              C 34 51 19 49 10 57
+              C 3 64 5 76 13 80
+              C 21 84 29 80 32 73" />
+            <path d="M 12 -18
+              C 5 5 8 35 15 62
+              L 22 98
+              C 25 111 18 120 10 118
+              C 2 116 0 107 5 102" />
           </g>
         `;
       }
@@ -4974,7 +5004,7 @@
           return `<line x1="${staffLeft}" y1="${y}" x2="${rowRight}" y2="${y}" stroke="#202436" stroke-width="2" />`;
         }).join("");
 
-        svg += `<text x="${clefX}" y="${top + 78}" font-size="105" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
+        svg += trebleClefSvg(clefX + 8, top);
 
         for (let i = start; i <= end; i++) {
           const isStartRepeatPosition = startRepeats.includes(i) && i !== 0;
@@ -5019,7 +5049,8 @@
       svg += marks.map(markHtml).join("");
 
       return `
-        <div class="staff-wrap" aria-label="${displayText}">
+        <div class="staff-wrap" aria-label="${displayText}"
+          style="--repeat-staff-width:${repeatStaffWidthPercent.toFixed(2)}%;">
           <svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img">
             ${svg}
           </svg>
