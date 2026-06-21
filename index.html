@@ -2232,6 +2232,117 @@
     }
 
 
+    /* スマホ縦向きの音価問題。音名・旋律と同じく、進捗・問題・選択肢をコンパクトに表示する。 */
+    @media (max-width: 620px) and (orientation: portrait) {
+      body.note-value-mobile-compact {
+        margin: 0;
+        padding: 0;
+        display: block;
+        background: #ffffff;
+        overflow-x: hidden;
+      }
+
+      body.note-value-mobile-compact .app {
+        width: 100%;
+        max-width: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      body.note-value-mobile-compact .app main {
+        padding: 6px;
+      }
+
+      body.note-value-mobile-compact .question-top {
+        display: grid;
+        grid-template-columns: auto minmax(70px, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 7px;
+      }
+
+      body.note-value-mobile-compact .question-top .badge {
+        padding: 6px 9px;
+        font-size: 13px;
+      }
+
+      body.note-value-mobile-compact .question-top .progress-wrap {
+        height: 8px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column {
+        display: block;
+        padding: 11px 8px 13px;
+        border-radius: 16px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #categoryLabel {
+        margin-bottom: 3px;
+        font-size: 12px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #questionTextRow {
+        margin: 0 0 7px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #questionText {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.3;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #displayBox {
+        min-height: 0;
+        padding: 3px 2px;
+        margin-bottom: 8px;
+        border-radius: 13px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #displayBox .staff-wrap {
+        width: min(360px, 100%);
+        margin: 0 auto;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #choices {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column .choice-btn {
+        min-height: 62px;
+        padding: 8px 3px;
+        border-radius: 13px;
+        font-size: 14px;
+        line-height: 1.25;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column #feedback {
+        margin-top: 8px;
+        padding: 10px;
+        border-radius: 13px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column > .actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 9px;
+      }
+
+      body.note-value-mobile-compact .question-card.note-value-two-column > .actions .main-btn,
+      body.note-value-mobile-compact .question-card.note-value-two-column > .actions .sub-btn {
+        width: 100%;
+        padding: 11px 7px;
+        border-radius: 13px;
+        font-size: 14px;
+      }
+    }
+
+
     .mobile-total-label {
       display: none;
     }
@@ -3804,6 +3915,27 @@
             choices: ["1拍", "0.75拍", "0.5拍", "1.5拍"],
             answer: "0.75拍",
             explanation: "付点8分音符は、8分音符0.5拍 + その半分0.25拍 = 0.75拍です。"
+          },
+          {
+            question: "この休符の音価は？",
+            display: "wholeRest",
+            choices: ["1拍休む", "2拍休む", "3拍休む", "4拍休む"],
+            answer: "4拍休む",
+            explanation: "全休符は、4分音符を1拍とすると4拍分休みます。"
+          },
+          {
+            question: "この休符の音価は？",
+            display: "halfRest",
+            choices: ["1拍休む", "2拍休む", "3拍休む", "4拍休む"],
+            answer: "2拍休む",
+            explanation: "2分休符は、4分音符を1拍とすると2拍分休みます。"
+          },
+          {
+            question: "この休符の音価は？",
+            display: "sixteenthRest",
+            choices: ["1拍休む", "0.5拍休む", "0.25拍休む", "0.125拍休む"],
+            answer: "0.25拍休む",
+            explanation: "16分休符は、4分音符の4分の1の長さなので0.25拍分休みます。"
           }
         ]
       },
@@ -4696,6 +4828,10 @@
       renderMusicQuote();
       document.body.classList.toggle("home-mobile-compact", screen === homeScreen);
       document.body.classList.toggle("melody-mobile-compact", screen === melodyNameScreen);
+      document.body.classList.toggle(
+        "note-value-mobile-compact",
+        screen === quizScreen && getBaseMode(currentMode || "") === "noteValue"
+      );
 
       if (app) {
         app.classList.toggle("home-wide", screen === homeScreen);
@@ -4706,6 +4842,7 @@
         app.classList.remove("repeat-wide");
         document.body.classList.remove("repeat-mobile-compact");
         document.body.classList.remove("note-name-mobile-compact");
+        document.body.classList.remove("note-value-mobile-compact");
         if (quizScreen) quizScreen.classList.remove("quiz-compact-question");
       }
 
@@ -5122,7 +5259,12 @@
       heon: null,
       syapu: null,
       hura: null,
-      natyu: null
+      natyu: null,
+      "4k": null,
+      "8": null,
+      "8k": null,
+      "16": null,
+      "16k": null
     };
     const repeatSymbolAssetCacheToken = encodeURIComponent(
       safeStorage.getItem(APP_UPDATE_HASH_KEY) || String(Date.now())
@@ -5166,7 +5308,12 @@
           resolveRepeatSymbolAsset('heon'),
           resolveRepeatSymbolAsset('syapu'),
           resolveRepeatSymbolAsset('hura'),
-          resolveRepeatSymbolAsset('natyu')
+          resolveRepeatSymbolAsset('natyu'),
+          resolveRepeatSymbolAsset('4k'),
+          resolveRepeatSymbolAsset('8'),
+          resolveRepeatSymbolAsset('8k'),
+          resolveRepeatSymbolAsset('16'),
+          resolveRepeatSymbolAsset('16k')
         ]).then(() => {
           repeatSymbolAssetsReady = true;
           return repeatSymbolAssetPaths;
@@ -5191,6 +5338,11 @@
 
       if (baseMode === "noteValue") {
         displayBox.innerHTML = createNoteValueHtml(q.display);
+        ensureRepeatSymbolAssets().then(() => {
+          if (getBaseMode(currentMode || "") === "noteValue" && currentQuestions[currentIndex] === q) {
+            displayBox.innerHTML = createNoteValueHtml(q.display);
+          }
+        });
         return;
       }
 
@@ -5308,43 +5460,62 @@
       const stemLength = 66;
       const stemX = noteX + 14;
 
-      const isWhole = type === "wholeNote";
-      const isHalf = type === "halfNote" || type === "dottedHalfNote";
-      const isQuarter = type === "quarterNote" || type === "dottedQuarterNote";
-      const isEighth = type === "eighthNote" || type === "dottedEighthNote";
-      const isSixteenth = type === "sixteenthNote";
-      const isDotted = type === "dottedHalfNote" || type === "dottedQuarterNote" || type === "dottedEighthNote";
-      const isRest = type === "quarterRest" || type === "eighthRest";
+      const assetConfig = {
+        quarterRest: { key: "4k", label: "4分休符", x: 242, y: 30, width: 76, height: 112 },
+        eighthNote: { key: "8", label: "8分音符", x: 230, y: 13, width: 100, height: 148 },
+        eighthRest: { key: "8k", label: "8分休符", x: 242, y: 28, width: 76, height: 114 },
+        sixteenthNote: { key: "16", label: "16分音符", x: 228, y: 11, width: 104, height: 152 },
+        sixteenthRest: { key: "16k", label: "16分休符", x: 239, y: 24, width: 82, height: 122 }
+      };
 
-      let symbol = "";
+      const imageInfo = assetConfig[type];
+      const imagePath = imageInfo ? repeatSymbolAssetPaths[imageInfo.key] : null;
       let noteParts = "";
 
-      if (isRest) {
-        symbol = type === "quarterRest" ? "𝄽" : "𝄾";
-        noteParts = `<text x="254" y="105" font-size="72" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">${symbol}</text>`;
+      if (imageInfo && imagePath) {
+        noteParts = `<image aria-label="${imageInfo.label}" href="${imagePath}" x="${imageInfo.x}" y="${imageInfo.y}" width="${imageInfo.width}" height="${imageInfo.height}" preserveAspectRatio="xMidYMid meet" />`;
+      } else if (type === "wholeRest") {
+        // 全休符は第4線（上から2本目）から下へぶら下げる。
+        noteParts = `<rect x="258" y="62" width="44" height="13" rx="1" fill="#202436" />`;
+      } else if (type === "halfRest") {
+        // 2分休符は第3線（中央線）の上に置く。
+        noteParts = `<rect x="258" y="69" width="44" height="13" rx="1" fill="#202436" />`;
       } else {
-        const filled = isQuarter || isEighth || isSixteenth;
-        const head = filled
-          ? `<ellipse cx="${noteX}" cy="${noteY}" rx="16" ry="10" transform="rotate(-18 ${noteX} ${noteY})" fill="#202436" />`
-          : `<ellipse cx="${noteX}" cy="${noteY}" rx="17" ry="10" transform="rotate(-18 ${noteX} ${noteY})" fill="white" stroke="#202436" stroke-width="3.5" />`;
+        const isWhole = type === "wholeNote";
+        const isHalf = type === "halfNote" || type === "dottedHalfNote";
+        const isQuarter = type === "quarterNote" || type === "dottedQuarterNote";
+        const isEighth = type === "eighthNote" || type === "dottedEighthNote";
+        const isSixteenth = type === "sixteenthNote";
+        const isDotted = type === "dottedHalfNote" || type === "dottedQuarterNote" || type === "dottedEighthNote";
+        const isRest = type === "quarterRest" || type === "eighthRest" || type === "sixteenthRest";
 
-        const stem = isWhole
-          ? ""
-          : `<line x1="${stemX}" y1="${noteY}" x2="${stemX}" y2="${noteY - stemLength}" stroke="#202436" stroke-width="3.5" stroke-linecap="round" />`;
+        if (isRest) {
+          const symbol = type === "quarterRest" ? "𝄽" : type === "sixteenthRest" ? "𝄿" : "𝄾";
+          noteParts = `<text x="254" y="105" font-size="72" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">${symbol}</text>`;
+        } else {
+          const filled = isQuarter || isEighth || isSixteenth;
+          const head = filled
+            ? `<ellipse cx="${noteX}" cy="${noteY}" rx="16" ry="10" transform="rotate(-18 ${noteX} ${noteY})" fill="#202436" />`
+            : `<ellipse cx="${noteX}" cy="${noteY}" rx="17" ry="10" transform="rotate(-18 ${noteX} ${noteY})" fill="white" stroke="#202436" stroke-width="3.5" />`;
 
-        let flags = "";
-        if (isEighth || isSixteenth) {
-          flags += `<path d="M ${stemX} ${noteY - stemLength} C ${stemX + 34} ${noteY - 52}, ${stemX + 31} ${noteY - 30}, ${stemX + 4} ${noteY - 40}" fill="none" stroke="#202436" stroke-width="3.5" stroke-linecap="round" />`;
+          const stem = isWhole
+            ? ""
+            : `<line x1="${stemX}" y1="${noteY}" x2="${stemX}" y2="${noteY - stemLength}" stroke="#202436" stroke-width="3.5" stroke-linecap="round" />`;
+
+          let flags = "";
+          if (isEighth || isSixteenth) {
+            flags += `<path d="M ${stemX} ${noteY - stemLength} C ${stemX + 34} ${noteY - 52}, ${stemX + 31} ${noteY - 30}, ${stemX + 4} ${noteY - 40}" fill="none" stroke="#202436" stroke-width="3.5" stroke-linecap="round" />`;
+          }
+          if (isSixteenth) {
+            flags += `<path d="M ${stemX} ${noteY - 52} C ${stemX + 30} ${noteY - 40}, ${stemX + 28} ${noteY - 20}, ${stemX + 4} ${noteY - 30}" fill="none" stroke="#202436" stroke-width="3.5" stroke-linecap="round" />`;
+          }
+
+          const dot = isDotted
+            ? `<circle cx="${noteX + 42}" cy="${noteY - 4}" r="4.5" fill="#202436" />`
+            : "";
+
+          noteParts = `${head}${stem}${flags}${dot}`;
         }
-        if (isSixteenth) {
-          flags += `<path d="M ${stemX} ${noteY - 52} C ${stemX + 30} ${noteY - 40}, ${stemX + 28} ${noteY - 20}, ${stemX + 4} ${noteY - 30}" fill="none" stroke="#202436" stroke-width="3.5" stroke-linecap="round" />`;
-        }
-
-        const dot = isDotted
-          ? `<circle cx="${noteX + 42}" cy="${noteY - 4}" r="4.5" fill="#202436" />`
-          : "";
-
-        noteParts = `${head}${stem}${flags}${dot}`;
       }
 
       return `
