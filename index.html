@@ -4510,6 +4510,54 @@
       });
     }
 
+    const repeatSymbolAssetPaths = {
+      segno: null,
+      toon: null
+    };
+    let repeatSymbolAssetsReady = false;
+    let repeatSymbolAssetsPromise = null;
+
+    function loadImageCandidate(url) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    async function resolveRepeatSymbolAsset(kind) {
+      if (repeatSymbolAssetPaths[kind]) return repeatSymbolAssetPaths[kind];
+
+      const folders = ['asset', 'assets'];
+      const extensions = ['png', 'svg', 'webp', 'jpg', 'jpeg'];
+      for (const folder of folders) {
+        for (const ext of extensions) {
+          const candidate = `${folder}/${kind}.${ext}`;
+          const found = await loadImageCandidate(candidate);
+          if (found) {
+            repeatSymbolAssetPaths[kind] = found;
+            return found;
+          }
+        }
+      }
+      return null;
+    }
+
+    async function ensureRepeatSymbolAssets() {
+      if (repeatSymbolAssetsReady) return repeatSymbolAssetPaths;
+      if (!repeatSymbolAssetsPromise) {
+        repeatSymbolAssetsPromise = Promise.all([
+          resolveRepeatSymbolAsset('segno'),
+          resolveRepeatSymbolAsset('toon')
+        ]).then(() => {
+          repeatSymbolAssetsReady = true;
+          return repeatSymbolAssetPaths;
+        });
+      }
+      return repeatSymbolAssetsPromise;
+    }
+
     function renderDisplay(q) {
       const baseMode = getBaseMode(currentMode);
       const isRepeatOrder = baseMode === "repeatOrder";
@@ -4530,6 +4578,11 @@
 
       if (baseMode === "repeatOrder") {
         displayBox.innerHTML = createRepeatOrderHtml(q.display);
+        ensureRepeatSymbolAssets().then(() => {
+          if (getBaseMode(currentMode) === "repeatOrder") {
+            displayBox.innerHTML = createRepeatOrderHtml(q.display);
+          }
+        });
         return;
       }
 
@@ -4914,6 +4967,18 @@
       }
 
       function segnoSymbolSvg(cx, cy, size = 30) {
+        const assetPath = repeatSymbolAssetPaths.segno;
+        if (assetPath) {
+          const width = size * 1.12;
+          const height = size * 1.12;
+          return `
+            <image aria-label="セーニョ記号" href="${assetPath}"
+              x="${cx - width / 2}" y="${cy - height / 2}"
+              width="${width}" height="${height}"
+              preserveAspectRatio="xMidYMid meet" />
+          `;
+        }
+
         const scale = size / 30;
         return `
           <g aria-label="セーニョ記号" transform="translate(${cx} ${cy}) scale(${scale})">
@@ -4929,6 +4994,16 @@
       }
 
       function trebleClefSvg(cx, staffTop) {
+        const assetPath = repeatSymbolAssetPaths.toon;
+        if (assetPath) {
+          return `
+            <image aria-label="ト音記号" href="${assetPath}"
+              x="${cx - 27}" y="${staffTop - 9}"
+              width="54" height="124"
+              preserveAspectRatio="xMidYMid meet" />
+          `;
+        }
+
         return `
           <g aria-label="ト音記号"
             transform="translate(${cx} ${staffTop + 2}) scale(0.78)"
@@ -7373,6 +7448,8 @@
 
       return array;
     }
+
+    ensureRepeatSymbolAssets();
   </script>
 </body>
 
