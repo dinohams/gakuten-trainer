@@ -4825,6 +4825,7 @@
     }
 
     function showScreen(screen) {
+      resetMobileViewportPosition();
       renderMusicQuote();
       document.body.classList.toggle("home-mobile-compact", screen === homeScreen);
       document.body.classList.toggle("melody-mobile-compact", screen === melodyNameScreen);
@@ -5175,9 +5176,25 @@
       currentQuizProgressSaved = true;
     }
 
-    function resetHomeViewportPosition() {
+    const defaultViewportContent = (() => {
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      return viewportMeta
+        ? (viewportMeta.getAttribute("content") || "width=device-width, initial-scale=1.0")
+        : "width=device-width, initial-scale=1.0";
+    })();
+    let mobileViewportResetTimer = 0;
+
+    function resetMobileViewportPosition() {
+      const isMobileLayout = window.matchMedia
+        && window.matchMedia("(max-width: 900px)").matches;
+      if (!isMobileLayout) return;
+
       const activeElement = document.activeElement;
-      if (activeElement && activeElement !== document.body && typeof activeElement.blur === "function") {
+      if (
+        activeElement
+        && activeElement !== document.body
+        && typeof activeElement.blur === "function"
+      ) {
         activeElement.blur();
       }
 
@@ -5188,42 +5205,40 @@
         document.body.scrollTop = 0;
         document.body.scrollLeft = 0;
 
-        if (homeScreen) {
-          homeScreen.scrollTop = 0;
-          homeScreen.scrollLeft = 0;
-          homeScreen.querySelectorAll(".grid, .learning-progress-grid, .home-settings-row").forEach(element => {
-            element.scrollTop = 0;
-            element.scrollLeft = 0;
-          });
-        }
+        document.querySelectorAll(
+          ".screen, .grid, .display-box, .melody-board, .rhythm-board, .learning-progress-grid, .home-settings-row"
+        ).forEach(element => {
+          element.scrollTop = 0;
+          element.scrollLeft = 0;
+        });
       };
 
       resetScrollPosition();
 
-      const isMobileLayout = window.matchMedia
-        && window.matchMedia("(max-width: 720px)").matches;
-      if (!isMobileLayout) return;
-
       const viewportMeta = document.querySelector('meta[name="viewport"]');
       if (!viewportMeta) return;
 
-      const originalViewport = viewportMeta.getAttribute("content")
-        || "width=device-width, initial-scale=1.0";
-
-      // iPhoneなどで入力欄を開いた際の自動拡大が残った場合も、
-      // 一度だけ等倍へ戻してから通常の拡大操作を再び有効にする。
+      // 画面切替のたびに一度だけ拡大を禁止して、ピンチズームや入力時の
+      // 自動拡大を強制的に100%へ戻す。その後、通常の拡大操作を再び有効にする。
       viewportMeta.setAttribute(
         "content",
         "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
       );
 
+      if (mobileViewportResetTimer) {
+        window.clearTimeout(mobileViewportResetTimer);
+      }
+
       window.requestAnimationFrame(() => {
         resetScrollPosition();
-        window.setTimeout(() => {
-          viewportMeta.setAttribute("content", originalViewport);
-          resetScrollPosition();
-        }, 160);
+        window.requestAnimationFrame(resetScrollPosition);
       });
+
+      mobileViewportResetTimer = window.setTimeout(() => {
+        viewportMeta.setAttribute("content", defaultViewportContent);
+        resetScrollPosition();
+        mobileViewportResetTimer = 0;
+      }, 220);
     }
 
     function backHome() {
@@ -5244,10 +5259,10 @@
       wrongQuestionIdsInCurrentQuiz = [];
       currentQuizProgressSaved = false;
       showScreen(homeScreen);
-      resetHomeViewportPosition();
     }
 
     function renderQuestion() {
+      resetMobileViewportPosition();
       const q = currentQuestions[currentIndex];
       answered = false;
       resetNoteNameHintState();
@@ -6735,6 +6750,7 @@
     }
 
     function renderMelodyNameQuestion() {
+      resetMobileViewportPosition();
       const q = currentMelodyQuestion();
       if (!q || !melodyBoard) return;
       melodyNameChecked = false;
