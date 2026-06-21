@@ -2577,6 +2577,13 @@
         border-radius: 12px;
         flex-direction: column;
         gap: 0;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      body.rhythm-mobile-compact.rhythm-placement-mode .rhythm-slot {
+        touch-action: none;
       }
 
       body.rhythm-mobile-compact .rhythm-tool .rhythm-glyph {
@@ -7023,8 +7030,16 @@
     let lastRhythmResults = null;
     let rhythmResultsAreStale = false;
     let activeRhythmPointerDrag = null;
+    let activeRhythmPalettePointerDrag = null;
+    let activeRhythmSlotPress = null;
     let rhythmDragGhost = null;
     let activeRhythmPaletteDragType = null;
+    let suppressNextRhythmToolClick = false;
+    let suppressNextRhythmSlotClick = false;
+    let rhythmAutoScrollFrame = null;
+    let rhythmAutoScrollDirection = 0;
+    let rhythmAutoScrollPointerX = 0;
+    let rhythmAutoScrollPointerY = 0;
     let selectedRhythmBeamItemIds = [];
     let rhythmBeamGroupIdCounter = 1;
     let rhythmShiftKeyActive = false;
@@ -7053,6 +7068,42 @@
 
     function getRhythmTotalSlots() {
       return 16;
+    }
+
+    function isRhythmMobileInteractionMode() {
+      return Boolean(
+        window.matchMedia &&
+        window.matchMedia("(max-width: 620px) and (orientation: portrait)").matches
+      );
+    }
+
+    function updateRhythmPlacementModeClass() {
+      document.body.classList.toggle(
+        "rhythm-placement-mode",
+        isRhythmMobileInteractionMode() && Boolean(selectedRhythmToolType)
+      );
+    }
+
+    function updateRhythmAutoCheckSummary(results) {
+      if (!rhythmResults) return;
+      const allOk = results.every(result => result.ok);
+      rhythmResults.classList.add("show");
+      rhythmResults.classList.remove("stale");
+      rhythmResults.textContent = allOk
+        ? "自動判定：全小節OKです。画像保存して提出できます。"
+        : "自動判定：各小節の上に出た文を見ながら、拍数の過不足、空白、重なり、はみ出しを直しましょう。";
+    }
+
+    function finalizeRhythmEdit() {
+      if (isRhythmMobileInteractionMode()) {
+        lastRhythmResults = analyzeRhythmMeasures();
+        rhythmResultsAreStale = false;
+        updateRhythmAutoCheckSummary(lastRhythmResults);
+      } else {
+        markRhythmResultsStale();
+      }
+      saveRhythmDraft();
+      renderRhythmCreator();
     }
 
     function getRhythmGridLabels() {
@@ -7192,6 +7243,7 @@
       showScreen(rhythmScreen);
       if (app) app.classList.add("rhythm-wide");
       loadRhythmDraftIfValid();
+      updateRhythmPlacementModeClass();
       renderRhythmTools();
       renderRhythmCreator();
       ensureRepeatSymbolAssets().then(() => {
@@ -7209,10 +7261,11 @@
         <button
           class="rhythm-tool ${selectedRhythmToolType === tool.type ? "selected" : ""}"
           type="button"
-          draggable="true"
+          draggable="${isRhythmMobileInteractionMode() ? "false" : "true"}"
           ondragstart="handleRhythmToolDragStart(event, '${tool.type}')"
           ondragend="activeRhythmPaletteDragType = null; clearRhythmPlacementPreview();"
-          onclick="selectRhythmTool('${tool.type}')"
+          onpointerdown="handleRhythmToolPointerDown(event, '${tool.type}')"
+          onclick="handleRhythmToolClick(event, '${tool.type}')"
         >
           <span class="rhythm-tool-label">${createRhythmGlyphHtml(tool)}<span class="rhythm-tool-name">${tool.label}</span></span>
           <span class="rhythm-tool-meta">${formatBeatText(tool.beats)}</span>
@@ -7220,8 +7273,21 @@
       `).join("");
     }
 
+    function handleRhythmToolClick(event, type) {
+      if (suppressNextRhythmToolClick) {
+        suppressNextRhythmToolClick = false;
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        return;
+      }
+      selectRhythmTool(type);
+    }
+
     function selectRhythmTool(type) {
       selectedRhythmToolType = selectedRhythmToolType === type ? null : type;
+      updateRhythmPlacementModeClass();
       renderRhythmTools();
     }
 
@@ -7249,6 +7315,165 @@
         document.body.appendChild(ghost);
         event.dataTransfer.setDragImage(ghost, 24, 24);
         window.setTimeout(() => ghost.remove(), 0);
+      }
+    }
+
+    function handleRhythmToolPointerDown(event, type) {
+      if (!isRhythmMobileInteractionMode()) return;
+      if (event.button !== undefined && event.button !== 0) return;
+      if (!isRhythmToolAvailable(type)) return;
+
+      activeRhythmPalettePointerDrag = {
+        pointerId: event.pointerId,
+        type,
+        startX: event.clientX,
+        startY: event.clientY,
+        lastX: event.clientX,
+        lastY: event.clientY,
+        dragging: false
+      };
+
+      document.addEventListener("pointermove", handleRhythmToolPointerMove, { passive: false });
+      document.addEventListener("pointerup", handleRhythmToolPointerUp, { passive: false });
+      document.addEventListener("pointercancel", cancelRhythmToolPointerDrag, { passive: false });
+    }
+
+    function handleRhythmToolPointerMove(event) {
+      const drag = activeRhythmPalettePointerDrag;
+      if (!drag || (drag.pointerId !== undefined && event.pointerId !== drag.pointerId)) return;
+
+      drag.lastX = event.clientX;
+      drag.lastY = event.clientY;
+      const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+
+      if (!drag.dragging && distance >= 7) {
+        drag.dragging = true;
+        suppressNextRhythmToolClick = true;
+        activeRhythmPaletteDragType = drag.type;
+        createRhythmDragGhost(drag.type, event.clientX, event.clientY);
+      }
+
+      if (!drag.dragging) return;
+      event.preventDefault();
+      moveRhythmDragGhost(event.clientX, event.clientY);
+      updateRhythmDragAutoScroll(event.clientX, event.clientY);
+
+      const target = getRhythmMeasureSlotFromPoint(event.clientX, event.clientY);
+      if (target) {
+        showRhythmPlacementPreview(target.measureIndex, target.slotIndex, drag.type);
+      } else {
+        clearRhythmPlacementPreview();
+      }
+    }
+
+    function handleRhythmToolPointerUp(event) {
+      const drag = activeRhythmPalettePointerDrag;
+      if (!drag || (drag.pointerId !== undefined && event.pointerId !== drag.pointerId)) return;
+      const target = drag.dragging
+        ? getRhythmMeasureSlotFromPoint(event.clientX, event.clientY)
+        : null;
+      const toolType = drag.type;
+      const wasDragging = drag.dragging;
+
+      cleanupRhythmToolPointerDrag();
+
+      if (wasDragging) {
+        event.preventDefault();
+        suppressNextRhythmToolClick = true;
+        window.setTimeout(() => {
+          suppressNextRhythmToolClick = false;
+        }, 350);
+        if (target) addRhythmItem(target.measureIndex, target.slotIndex, toolType);
+      }
+    }
+
+    function cancelRhythmToolPointerDrag() {
+      const wasDragging = Boolean(activeRhythmPalettePointerDrag?.dragging);
+      cleanupRhythmToolPointerDrag();
+      if (wasDragging) {
+        suppressNextRhythmToolClick = true;
+        window.setTimeout(() => {
+          suppressNextRhythmToolClick = false;
+        }, 350);
+      }
+    }
+
+    function cleanupRhythmToolPointerDrag() {
+      activeRhythmPalettePointerDrag = null;
+      activeRhythmPaletteDragType = null;
+      removeRhythmDragGhost();
+      clearRhythmPlacementPreview();
+      stopRhythmDragAutoScroll();
+      document.removeEventListener("pointermove", handleRhythmToolPointerMove);
+      document.removeEventListener("pointerup", handleRhythmToolPointerUp);
+      document.removeEventListener("pointercancel", cancelRhythmToolPointerDrag);
+    }
+
+    function updateRhythmDragAutoScroll(clientX, clientY) {
+      if (!isRhythmMobileInteractionMode()) {
+        stopRhythmDragAutoScroll();
+        return;
+      }
+
+      const board = document.querySelector(".rhythm-board");
+      if (!board) return;
+      const rect = board.getBoundingClientRect();
+      const threshold = Math.min(56, Math.max(36, rect.width * 0.16));
+      const withinVerticalRange = clientY >= rect.top - 70 && clientY <= rect.bottom + 70;
+      let direction = 0;
+
+      if (withinVerticalRange && clientX <= rect.left + threshold) direction = -1;
+      if (withinVerticalRange && clientX >= rect.right - threshold) direction = 1;
+
+      rhythmAutoScrollPointerX = clientX;
+      rhythmAutoScrollPointerY = clientY;
+      rhythmAutoScrollDirection = direction;
+
+      if (direction !== 0 && rhythmAutoScrollFrame === null) {
+        rhythmAutoScrollFrame = window.requestAnimationFrame(runRhythmDragAutoScroll);
+      } else if (direction === 0) {
+        stopRhythmDragAutoScroll();
+      }
+    }
+
+    function runRhythmDragAutoScroll() {
+      rhythmAutoScrollFrame = null;
+      if (rhythmAutoScrollDirection === 0) return;
+
+      const board = document.querySelector(".rhythm-board");
+      if (!board) {
+        stopRhythmDragAutoScroll();
+        return;
+      }
+
+      const previousScrollLeft = board.scrollLeft;
+      board.scrollLeft += rhythmAutoScrollDirection * 10;
+      if (board.scrollLeft === previousScrollLeft) {
+        stopRhythmDragAutoScroll();
+        return;
+      }
+
+      const target = getRhythmMeasureSlotFromPoint(rhythmAutoScrollPointerX, rhythmAutoScrollPointerY);
+      const toolType = activeRhythmPalettePointerDrag?.type
+        || activeRhythmPointerDrag?.toolType
+        || activeRhythmSlotPress?.toolType
+        || getRhythmPreviewToolType();
+      if (target && toolType) {
+        showRhythmPlacementPreview(target.measureIndex, target.slotIndex, toolType);
+        if (activeRhythmSlotPress) {
+          activeRhythmSlotPress.measureIndex = target.measureIndex;
+          activeRhythmSlotPress.slotIndex = target.slotIndex;
+        }
+      }
+
+      rhythmAutoScrollFrame = window.requestAnimationFrame(runRhythmDragAutoScroll);
+    }
+
+    function stopRhythmDragAutoScroll() {
+      rhythmAutoScrollDirection = 0;
+      if (rhythmAutoScrollFrame !== null) {
+        window.cancelAnimationFrame(rhythmAutoScrollFrame);
+        rhythmAutoScrollFrame = null;
       }
     }
 
@@ -7692,7 +7917,9 @@
       }
 
       if (activeRhythmPointerDrag.moved) {
+        event.preventDefault();
         moveRhythmDragGhost(event.clientX, event.clientY);
+        updateRhythmDragAutoScroll(event.clientX, event.clientY);
         const target = getRhythmMeasureSlotFromPoint(event.clientX, event.clientY);
         if (target) {
           showRhythmPlacementPreview(target.measureIndex, target.slotIndex, activeRhythmPointerDrag.toolType);
@@ -7727,6 +7954,7 @@
       activeRhythmPointerDrag = null;
       removeRhythmDragGhost();
       clearRhythmPlacementPreview();
+      stopRhythmDragAutoScroll();
       document.removeEventListener("pointermove", handleRhythmItemPointerMove);
       document.removeEventListener("pointerup", handleRhythmItemPointerUp);
       document.removeEventListener("pointercancel", cancelRhythmItemPointerDrag);
@@ -7846,7 +8074,7 @@
                 ${gridLabels.map((label, slotIndex) => {
                   const actualSlot = slotIndex * slotUnit;
                   const errorClasses = getRhythmSlotErrorClasses(measureIndex, actualSlot, slotUnit);
-                  return `<div class="rhythm-slot ${errorClasses}" onclick="handleRhythmSlotClick(${measureIndex}, ${actualSlot})" onmouseenter="handleRhythmSlotMouseEnter(${measureIndex}, ${actualSlot})" data-slot="${actualSlot}"></div>`;
+                  return `<div class="rhythm-slot ${errorClasses}" onclick="handleRhythmSlotClick(event, ${measureIndex}, ${actualSlot})" onpointerdown="handleRhythmSlotPointerDown(event, ${measureIndex}, ${actualSlot})" onmouseenter="handleRhythmSlotMouseEnter(${measureIndex}, ${actualSlot})" data-slot="${actualSlot}"></div>`;
                 }).join("")}
               </div>
               ${items.map(item => createRhythmItemHtml(item, measureIndex)).join("")}
@@ -8022,10 +8250,131 @@
       clearRhythmPlacementPreview();
     }
 
-    function handleRhythmSlotClick(measureIndex, slotIndex) {
+    function handleRhythmSlotClick(event, measureIndex, slotIndex) {
+      if (isRhythmMobileInteractionMode()) {
+        if (suppressNextRhythmSlotClick) {
+          suppressNextRhythmSlotClick = false;
+          if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          return;
+        }
+        return;
+      }
+
       if (!selectedRhythmToolType) return;
       addRhythmItem(measureIndex, slotIndex, selectedRhythmToolType);
       clearRhythmPlacementPreview();
+    }
+
+    function handleRhythmSlotPointerDown(event, measureIndex, slotIndex) {
+      if (!isRhythmMobileInteractionMode() || !selectedRhythmToolType) return;
+      if (event.button !== undefined && event.button !== 0) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      activeRhythmSlotPress = {
+        pointerId: event.pointerId,
+        toolType: selectedRhythmToolType,
+        measureIndex,
+        slotIndex,
+        startX: event.clientX,
+        startY: event.clientY,
+        lastX: event.clientX,
+        lastY: event.clientY,
+        moved: false,
+        previewing: false,
+        longPressTimer: null
+      };
+
+      activeRhythmSlotPress.longPressTimer = window.setTimeout(() => {
+        activateRhythmSlotLongPressPreview();
+      }, 260);
+
+      document.addEventListener("pointermove", handleRhythmSlotPointerMove, { passive: false });
+      document.addEventListener("pointerup", handleRhythmSlotPointerUp, { passive: false });
+      document.addEventListener("pointercancel", cancelRhythmSlotPress, { passive: false });
+    }
+
+    function activateRhythmSlotLongPressPreview() {
+      const press = activeRhythmSlotPress;
+      if (!press || press.previewing) return;
+      press.previewing = true;
+      createRhythmDragGhost(press.toolType, press.lastX, press.lastY);
+      const target = getRhythmMeasureSlotFromPoint(press.lastX, press.lastY);
+      if (target) {
+        press.measureIndex = target.measureIndex;
+        press.slotIndex = target.slotIndex;
+      }
+      showRhythmPlacementPreview(press.measureIndex, press.slotIndex, press.toolType);
+      updateRhythmDragAutoScroll(press.lastX, press.lastY);
+    }
+
+    function handleRhythmSlotPointerMove(event) {
+      const press = activeRhythmSlotPress;
+      if (!press || (press.pointerId !== undefined && event.pointerId !== press.pointerId)) return;
+
+      press.lastX = event.clientX;
+      press.lastY = event.clientY;
+      const distance = Math.hypot(event.clientX - press.startX, event.clientY - press.startY);
+      if (distance >= 8) press.moved = true;
+
+      if (!press.previewing) return;
+      event.preventDefault();
+      moveRhythmDragGhost(event.clientX, event.clientY);
+      updateRhythmDragAutoScroll(event.clientX, event.clientY);
+      const target = getRhythmMeasureSlotFromPoint(event.clientX, event.clientY);
+      if (target) {
+        press.measureIndex = target.measureIndex;
+        press.slotIndex = target.slotIndex;
+        showRhythmPlacementPreview(target.measureIndex, target.slotIndex, press.toolType);
+      } else {
+        clearRhythmPlacementPreview();
+      }
+    }
+
+    function handleRhythmSlotPointerUp(event) {
+      const press = activeRhythmSlotPress;
+      if (!press || (press.pointerId !== undefined && event.pointerId !== press.pointerId)) return;
+
+      const distance = Math.hypot(event.clientX - press.startX, event.clientY - press.startY);
+      const target = press.previewing
+        ? getRhythmMeasureSlotFromPoint(event.clientX, event.clientY)
+        : { measureIndex: press.measureIndex, slotIndex: press.slotIndex };
+      const shouldPlace = press.previewing ? Boolean(target) : distance < 10;
+      const toolType = press.toolType;
+
+      cleanupRhythmSlotPress();
+      suppressNextRhythmSlotClick = true;
+      window.setTimeout(() => {
+        suppressNextRhythmSlotClick = false;
+      }, 350);
+
+      if (shouldPlace && target) {
+        addRhythmItem(target.measureIndex, target.slotIndex, toolType);
+      }
+    }
+
+    function cancelRhythmSlotPress() {
+      cleanupRhythmSlotPress();
+      suppressNextRhythmSlotClick = true;
+      window.setTimeout(() => {
+        suppressNextRhythmSlotClick = false;
+      }, 350);
+    }
+
+    function cleanupRhythmSlotPress() {
+      if (activeRhythmSlotPress?.longPressTimer) {
+        window.clearTimeout(activeRhythmSlotPress.longPressTimer);
+      }
+      activeRhythmSlotPress = null;
+      removeRhythmDragGhost();
+      clearRhythmPlacementPreview();
+      stopRhythmDragAutoScroll();
+      document.removeEventListener("pointermove", handleRhythmSlotPointerMove);
+      document.removeEventListener("pointerup", handleRhythmSlotPointerUp);
+      document.removeEventListener("pointercancel", cancelRhythmSlotPress);
     }
 
     function hasRhythmStartSlotOccupied(measureIndex, startSlot, ignoreItemId = null) {
@@ -8052,9 +8401,7 @@
       });
 
       measure.sort((a, b) => a.startSlot - b.startSlot || a.id - b.id);
-      markRhythmResultsStale();
-      saveRhythmDraft();
-      renderRhythmCreator();
+      finalizeRhythmEdit();
     }
 
     function moveRhythmItem(fromMeasureIndex, itemId, toMeasureIndex, startSlot) {
@@ -8071,9 +8418,7 @@
       item.beamGroupId = null;
       toMeasure.push(item);
       toMeasure.sort((a, b) => a.startSlot - b.startSlot || a.id - b.id);
-      markRhythmResultsStale();
-      saveRhythmDraft();
-      renderRhythmCreator();
+      finalizeRhythmEdit();
     }
 
     function removeRhythmItem(event, measureIndex, itemId) {
@@ -8082,9 +8427,7 @@
       if (removedItem && removedItem.beamGroupId) clearRhythmBeamGroup(removedItem.beamGroupId);
       selectedRhythmBeamItemIds = selectedRhythmBeamItemIds.filter(id => id !== itemId);
       rhythmMeasures[measureIndex] = rhythmMeasures[measureIndex].filter(item => item.id !== itemId);
-      markRhythmResultsStale();
-      saveRhythmDraft();
-      renderRhythmCreator();
+      finalizeRhythmEdit();
     }
 
     function markRhythmResultsStale() {
