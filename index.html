@@ -2324,6 +2324,21 @@
         border-radius: 7px;
         padding: 3px 1px;
         font-size: 13px;
+        line-height: 1.15;
+      }
+
+      body.melody-mobile-compact textarea.melody-answer-input {
+        display: block;
+        min-height: 24px;
+        height: 24px;
+        max-height: 72px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        resize: none;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-all;
+        font-family: inherit;
       }
 
       body.melody-mobile-compact .melody-correct-label {
@@ -6472,11 +6487,28 @@
         const pos = notePositions[note.index];
         const leftPercent = pos ? (pos.x / svgWidth) * 100 : 0;
         const topPx = pos ? rowAnswerTopMap[pos.row] : 0;
-        return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px"><input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" oninput="melodyBlankCheckPressCount = 0" /><div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
+        const answerField = compactLayout
+          ? `<textarea class="melody-answer-input" id="melodyAnswer${index}" rows="1" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="音名" aria-label="${index + 1}番目の音名" oninput="handleMelodyAnswerInput(this)"></textarea>`
+          : `<input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" oninput="melodyBlankCheckPressCount = 0" />`;
+        return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px">${answerField}<div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
       }).join("");
       const wrapHeight = Math.max(svgHeight + (compactLayout ? 16 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 32 : 56));
       const widthStyle = compactLayout ? 'width:100%;min-width:0;' : "";
       return `<div class="melody-staff-wrap" style="position:relative;height:${wrapHeight}px;${widthStyle}"><svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${question.clefLabel}・${measureCount}小節の旋律" style="overflow:visible;display:block;">${svg}</svg><div class="melody-answer-layer">${answerCells}</div></div>`;
+    }
+
+    function resizeMelodyAnswerField(field) {
+      if (!field || field.tagName !== "TEXTAREA") return;
+      field.style.height = "24px";
+      const nextHeight = Math.min(72, Math.max(24, field.scrollHeight));
+      field.style.height = `${nextHeight}px`;
+      field.style.overflowY = field.scrollHeight > 72 ? "auto" : "hidden";
+    }
+
+    function handleMelodyAnswerInput(field) {
+      melodyBlankCheckPressCount = 0;
+      if (field) field.classList.remove("blank");
+      resizeMelodyAnswerField(field);
     }
 
     function renderMelodyNameQuestion() {
@@ -6501,6 +6533,7 @@
       window.requestAnimationFrame(() => {
         melodyBoard.scrollLeft = 0;
         melodyBoard.scrollTop = 0;
+        melodyBoard.querySelectorAll("textarea.melody-answer-input").forEach(resizeMelodyAnswerField);
       });
     }
 
