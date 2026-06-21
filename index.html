@@ -7625,9 +7625,12 @@
       musicQuote.textContent = `“${quote.text}” ― ${quote.author}`;
     }
 
-    let noteNameKeyboardScrollTimers = [];
+    let noteNameKeyboardSettleTimer = null;
+    let noteNameKeyboardFallbackTimer = null;
     let noteNameSmoothScrollFrame = null;
-    let noteNameSmoothScrollTargetY = null;
+    let noteNameKeyboardAutoAdjustPending = false;
+    let noteNameKeyboardHasAdjusted = false;
+    let noteNameKeyboardUserTookControl = false;
     let suppressNextNoteNameAutoFocus = false;
 
     function stopNoteNameSmoothScroll() {
@@ -7635,45 +7638,52 @@
         window.cancelAnimationFrame(noteNameSmoothScrollFrame);
         noteNameSmoothScrollFrame = null;
       }
-      noteNameSmoothScrollTargetY = null;
     }
 
-    function glidePageTo(targetY) {
+    function glidePageTo(targetY, options = {}) {
+      stopNoteNameSmoothScroll();
+
       const viewportHeight = window.visualViewport
         ? window.visualViewport.height
         : window.innerHeight;
       const maxScrollY = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
-      noteNameSmoothScrollTargetY = Math.max(0, Math.min(targetY, maxScrollY));
+      const destinationY = Math.max(0, Math.min(targetY, maxScrollY));
+      const startY = window.scrollY;
+      const distance = destinationY - startY;
 
-      if (noteNameSmoothScrollFrame !== null) return;
+      if (Math.abs(distance) < 0.5) {
+        window.scrollTo(0, destinationY);
+        return;
+      }
 
-      let previousTime = performance.now();
+      // 距離に応じて少し長めに取り、120Hz端末でも細かく滑らかに補間する。
+      const duration = options.duration ?? Math.min(920, Math.max(560, 520 + Math.abs(distance) * 0.34));
+      const startedAt = performance.now();
+
+      function easeInOutQuint(t) {
+        return t < 0.5
+          ? 16 * t * t * t * t * t
+          : 1 - Math.pow(-2 * t + 2, 5) / 2;
+      }
 
       function step(now) {
-        const currentY = window.scrollY;
-        const destinationY = noteNameSmoothScrollTargetY ?? currentY;
-        const distance = destinationY - currentY;
-        const elapsed = Math.min(34, Math.max(1, now - previousTime));
-        previousTime = now;
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = easeInOutQuint(progress);
+        window.scrollTo(0, startY + distance * eased);
 
-        // 画面更新間隔に合わせて追従率を調整し、途中で目標位置が変わっても滑らかにつなぐ。
-        const followRate = 1 - Math.pow(0.80, elapsed / 16.67);
-        const nextY = currentY + distance * followRate;
-
-        if (Math.abs(distance) < 0.6) {
+        if (progress < 1) {
+          noteNameSmoothScrollFrame = window.requestAnimationFrame(step);
+        } else {
           window.scrollTo(0, destinationY);
           noteNameSmoothScrollFrame = null;
-          return;
         }
-
-        window.scrollTo(0, nextY);
-        noteNameSmoothScrollFrame = window.requestAnimationFrame(step);
       }
 
       noteNameSmoothScrollFrame = window.requestAnimationFrame(step);
     }
 
     function scrollNoteNameQuestionForKeyboard() {
+      if (!noteNameKeyboardAutoAdjustPending || noteNameKeyboardHasAdjusted || noteNameKeyboardUserTookControl) return;
       if (!noteAnswerInput || document.activeElement !== noteAnswerInput) return;
       if (!quizScreen || !quizScreen.classList.contains("active")) return;
       if (getBaseMode(currentMode || "") !== "noteName") return;
@@ -7700,19 +7710,61 @@
         targetY += projectedAnswerBottom - (viewportHeight - bottomGap);
       }
 
+      // 自動位置調整はこの1回だけ。以後はユーザーの手動スクロールを邪魔しない。
+      noteNameKeyboardHasAdjusted = true;
+      noteNameKeyboardAutoAdjustPending = false;
+      clearNoteNameKeyboardScrollSchedule();
       glidePageTo(targetY);
     }
 
     function clearNoteNameKeyboardScrollSchedule() {
-      noteNameKeyboardScrollTimers.forEach(timerId => window.clearTimeout(timerId));
-      noteNameKeyboardScrollTimers = [];
+      if (noteNameKeyboardSettleTimer !== null) {
+        window.clearTimeout(noteNameKeyboardSettleTimer);
+        noteNameKeyboardSettleTimer = null;
+      }
+      if (noteNameKeyboardFallbackTimer !== null) {
+        window.clearTimeout(noteNameKeyboardFallbackTimer);
+        noteNameKeyboardFallbackTimer = null;
+      }
+    }
+
+    function runNoteNameKeyboardAdjustmentOnce() {
+      if (!noteNameKeyboardAutoAdjustPending || noteNameKeyboardHasAdjusted || noteNameKeyboardUserTookControl) return;
+      scrollNoteNameQuestionForKeyboard();
     }
 
     function scheduleNoteNameKeyboardScroll() {
       clearNoteNameKeyboardScrollSchedule();
-      noteNameKeyboardScrollTimers = [60, 180, 360, 620].map(delay =>
-        window.setTimeout(scrollNoteNameQuestionForKeyboard, delay)
-      );
+      noteNameKeyboardAutoAdjustPending = true;
+      noteNameKeyboardHasAdjusted = false;
+      noteNameKeyboardUserTookControl = false;
+
+      // visualViewport が使える端末では、キーボードの開閉アニメーションが落ち着いた後に1回だけ動かす。
+      if (window.visualViewport) {
+        noteNameKeyboardFallbackTimer = window.setTimeout(runNoteNameKeyboardAdjustmentOnce, 760);
+      } else {
+        noteNameKeyboardSettleTimer = window.setTimeout(runNoteNameKeyboardAdjustmentOnce, 320);
+      }
+    }
+
+    function scheduleNoteNameKeyboardAdjustmentAfterViewportSettles() {
+      if (!noteNameKeyboardAutoAdjustPending || noteNameKeyboardHasAdjusted || noteNameKeyboardUserTookControl) return;
+
+      if (noteNameKeyboardSettleTimer !== null) {
+        window.clearTimeout(noteNameKeyboardSettleTimer);
+      }
+
+      noteNameKeyboardSettleTimer = window.setTimeout(runNoteNameKeyboardAdjustmentOnce, 150);
+    }
+
+    function releaseNoteNameKeyboardAutoScrollToUser() {
+      if (!noteNameKeyboardAutoAdjustPending && noteNameKeyboardHasAdjusted && noteNameSmoothScrollFrame === null) return;
+      if (document.activeElement !== noteAnswerInput) return;
+
+      noteNameKeyboardUserTookControl = true;
+      noteNameKeyboardAutoAdjustPending = false;
+      clearNoteNameKeyboardScrollSchedule();
+      stopNoteNameSmoothScroll();
     }
 
     function setupEventListeners() {
@@ -7726,6 +7778,11 @@
 
       if (noteAnswerInput) {
         noteAnswerInput.addEventListener("focus", scheduleNoteNameKeyboardScroll);
+        noteAnswerInput.addEventListener("blur", () => {
+          noteNameKeyboardAutoAdjustPending = false;
+          clearNoteNameKeyboardScrollSchedule();
+          stopNoteNameSmoothScroll();
+        });
 
         noteAnswerInput.addEventListener("keydown", event => {
           if (event.key === "Enter") {
@@ -7738,10 +7795,15 @@
         });
       }
 
+      // 自動スクロール中でも、指・マウス・ホイール操作を始めた瞬間にユーザー操作へ完全に譲る。
+      document.addEventListener("touchstart", releaseNoteNameKeyboardAutoScrollToUser, { passive: true, capture: true });
+      document.addEventListener("pointerdown", releaseNoteNameKeyboardAutoScrollToUser, { passive: true, capture: true });
+      document.addEventListener("wheel", releaseNoteNameKeyboardAutoScrollToUser, { passive: true, capture: true });
+
       if (window.visualViewport) {
         window.visualViewport.addEventListener("resize", () => {
           if (document.activeElement === noteAnswerInput) {
-            scheduleNoteNameKeyboardScroll();
+            scheduleNoteNameKeyboardAdjustmentAfterViewportSettles();
           }
         });
       }
