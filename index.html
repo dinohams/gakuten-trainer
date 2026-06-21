@@ -4712,7 +4712,9 @@
       renderNoteNameHintControls();
 
       if (isTypedAnswer) {
-        if (noteAnswerInput) setTimeout(() => noteAnswerInput.focus(), 0);
+        const shouldAutoFocus = !suppressNextNoteNameAutoFocus;
+        suppressNextNoteNameAutoFocus = false;
+        if (noteAnswerInput && shouldAutoFocus) setTimeout(() => noteAnswerInput.focus(), 0);
         return;
       }
 
@@ -5600,8 +5602,22 @@
 
     function goNext() {
       if (currentIndex < currentQuestions.length - 1) {
+        const isNoteNameMode = getBaseMode(currentMode || "") === "noteName";
+
+        if (isNoteNameMode) {
+          suppressNextNoteNameAutoFocus = true;
+          clearNoteNameKeyboardScrollSchedule();
+          stopNoteNameSmoothScroll();
+          if (noteAnswerInput) noteAnswerInput.blur();
+        }
+
         currentIndex++;
         renderQuestion();
+
+        // 次の問題は一度ページ最上部から見せる。音名問題ではキーボードも閉じた状態にする。
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => glidePageTo(0));
+        });
       } else {
         showResult();
       }
@@ -7610,6 +7626,52 @@
     }
 
     let noteNameKeyboardScrollTimers = [];
+    let noteNameSmoothScrollFrame = null;
+    let noteNameSmoothScrollTargetY = null;
+    let suppressNextNoteNameAutoFocus = false;
+
+    function stopNoteNameSmoothScroll() {
+      if (noteNameSmoothScrollFrame !== null) {
+        window.cancelAnimationFrame(noteNameSmoothScrollFrame);
+        noteNameSmoothScrollFrame = null;
+      }
+      noteNameSmoothScrollTargetY = null;
+    }
+
+    function glidePageTo(targetY) {
+      const viewportHeight = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+      const maxScrollY = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
+      noteNameSmoothScrollTargetY = Math.max(0, Math.min(targetY, maxScrollY));
+
+      if (noteNameSmoothScrollFrame !== null) return;
+
+      let previousTime = performance.now();
+
+      function step(now) {
+        const currentY = window.scrollY;
+        const destinationY = noteNameSmoothScrollTargetY ?? currentY;
+        const distance = destinationY - currentY;
+        const elapsed = Math.min(34, Math.max(1, now - previousTime));
+        previousTime = now;
+
+        // 画面更新間隔に合わせて追従率を調整し、途中で目標位置が変わっても滑らかにつなぐ。
+        const followRate = 1 - Math.pow(0.80, elapsed / 16.67);
+        const nextY = currentY + distance * followRate;
+
+        if (Math.abs(distance) < 0.6) {
+          window.scrollTo(0, destinationY);
+          noteNameSmoothScrollFrame = null;
+          return;
+        }
+
+        window.scrollTo(0, nextY);
+        noteNameSmoothScrollFrame = window.requestAnimationFrame(step);
+      }
+
+      noteNameSmoothScrollFrame = window.requestAnimationFrame(step);
+    }
 
     function scrollNoteNameQuestionForKeyboard() {
       if (!noteAnswerInput || document.activeElement !== noteAnswerInput) return;
@@ -7629,7 +7691,7 @@
       const topGap = 8;
       const bottomGap = 12;
 
-      // まず譜面の上端を画面上部に合わせ、入力欄もキーボードの上に収まるよう微調整する。
+      // 譜面の上端を残しつつ、入力欄と解答ボタンがキーボードの上に収まる位置を目標にする。
       let targetY = window.scrollY + displayRect.top - topGap;
       const answerBottomFromDisplayTop = answerRect.bottom - displayRect.top;
       const projectedAnswerBottom = topGap + answerBottomFromDisplayTop;
@@ -7638,16 +7700,17 @@
         targetY += projectedAnswerBottom - (viewportHeight - bottomGap);
       }
 
-      const maxScrollY = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
-      window.scrollTo({
-        top: Math.max(0, Math.min(targetY, maxScrollY)),
-        behavior: "smooth"
-      });
+      glidePageTo(targetY);
+    }
+
+    function clearNoteNameKeyboardScrollSchedule() {
+      noteNameKeyboardScrollTimers.forEach(timerId => window.clearTimeout(timerId));
+      noteNameKeyboardScrollTimers = [];
     }
 
     function scheduleNoteNameKeyboardScroll() {
-      noteNameKeyboardScrollTimers.forEach(timerId => window.clearTimeout(timerId));
-      noteNameKeyboardScrollTimers = [80, 240, 520].map(delay =>
+      clearNoteNameKeyboardScrollSchedule();
+      noteNameKeyboardScrollTimers = [60, 180, 360, 620].map(delay =>
         window.setTimeout(scrollNoteNameQuestionForKeyboard, delay)
       );
     }
