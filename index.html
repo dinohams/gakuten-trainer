@@ -2117,6 +2117,120 @@
         margin-top: 10px;
       }
     }
+
+
+    /* スマホ縦向きの音名問題だけ、余白と縦並びを詰めて表示領域を広げる。 */
+    @media (max-width: 620px) and (orientation: portrait) {
+      body.note-name-mobile-compact {
+        margin: 0;
+        padding: 0;
+        display: block;
+        background: #ffffff;
+        overflow-x: hidden;
+      }
+
+      body.note-name-mobile-compact .app {
+        width: 100%;
+        max-width: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      body.note-name-mobile-compact .app main {
+        padding: 6px;
+      }
+
+      body.note-name-mobile-compact .question-top {
+        display: grid;
+        grid-template-columns: auto minmax(70px, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 7px;
+      }
+
+      body.note-name-mobile-compact .question-card {
+        padding: 14px 10px 16px;
+        border-radius: 16px;
+      }
+
+      body.note-name-mobile-compact .category-label {
+        margin-bottom: 4px;
+      }
+
+      body.note-name-mobile-compact .question-card.note-name-two-column #questionTextRow {
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      body.note-name-mobile-compact .question-card.note-name-two-column #displayBox {
+        min-height: 0;
+        padding: 6px;
+        margin-bottom: 10px;
+        border-radius: 14px;
+      }
+
+      body.note-name-mobile-compact .staff-label {
+        margin-top: 3px;
+      }
+
+      body.note-name-mobile-compact .question-card.note-name-two-column #noteNameHintArea {
+        margin: 0 auto 10px;
+        padding: 9px 10px;
+        border-radius: 14px;
+      }
+
+      body.note-name-mobile-compact .note-name-hint-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      body.note-name-mobile-compact .hint-btn {
+        width: 100%;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      body.note-name-mobile-compact .note-name-hint-message {
+        margin-top: 7px;
+        line-height: 1.5;
+      }
+
+      body.note-name-mobile-compact .hint-choice-row {
+        margin-top: 6px;
+      }
+
+      body.note-name-mobile-compact .question-card.note-name-two-column #inputAnswerArea {
+        margin-top: 0;
+      }
+
+      body.note-name-mobile-compact .note-name-answer-area .answer-input-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      body.note-name-mobile-compact .note-name-answer-area .answer-input {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+      }
+
+      body.note-name-mobile-compact .note-name-answer-area .answer-input-note {
+        grid-column: 1 / -1;
+        margin-top: 0;
+        white-space: normal;
+        text-align: center;
+      }
+
+      body.note-name-mobile-compact .actions {
+        margin-top: 10px;
+      }
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">    ensureRepeatSymbolAssets();
   </script>
@@ -4203,6 +4317,7 @@
       if (app && screen !== quizScreen) {
         app.classList.remove("repeat-wide");
         document.body.classList.remove("repeat-mobile-compact");
+        document.body.classList.remove("note-name-mobile-compact");
         if (quizScreen) quizScreen.classList.remove("quiz-compact-question");
       }
 
@@ -4668,6 +4783,7 @@
 
       if (app) app.classList.toggle("repeat-wide", isRepeatOrder);
       document.body.classList.toggle("repeat-mobile-compact", isRepeatOrder);
+      document.body.classList.toggle("note-name-mobile-compact", baseMode === "noteName");
 
       if (baseMode === "noteName") {
         displayBox.innerHTML = createStaffHtml(q.display, { showReferenceNote: noteNameHint1Used });
