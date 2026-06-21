@@ -4825,7 +4825,6 @@
     }
 
     function showScreen(screen) {
-      resetMobileViewportPosition();
       renderMusicQuote();
       document.body.classList.toggle("home-mobile-compact", screen === homeScreen);
       document.body.classList.toggle("melody-mobile-compact", screen === melodyNameScreen);
@@ -4873,6 +4872,10 @@
       if (screen === melodyNameOptionScreen) {
         renderMelodyOptionButtons();
       }
+
+      // 新しい画面を表示し終えてから等倍化する。Safariでは表示前より
+      // 表示後にviewportを再計算させる方が反映されやすい。
+      resetMobileViewportPosition();
     }
 
     function setQuestionCount(count) {
@@ -5183,12 +5186,28 @@
         : "width=device-width, initial-scale=1.0";
     })();
     let mobileViewportResetTimer = 0;
+    let mobileViewportResetFrame = 0;
+    let mobileViewportResetToken = 0;
+
+    function replaceMobileViewportMeta(content) {
+      const currentMeta = document.querySelector('meta[name="viewport"]');
+      if (!currentMeta || !currentMeta.parentNode) return null;
+
+      // Safariは既存meta要素のcontent変更だけでは、現在のピンチ倍率を
+      // 再計算しないことがあるため、要素自体を差し替える。
+      const nextMeta = currentMeta.cloneNode(false);
+      nextMeta.setAttribute("name", "viewport");
+      nextMeta.setAttribute("content", content);
+      currentMeta.parentNode.replaceChild(nextMeta, currentMeta);
+      return nextMeta;
+    }
 
     function resetMobileViewportPosition() {
       const isMobileLayout = window.matchMedia
         && window.matchMedia("(max-width: 900px)").matches;
       if (!isMobileLayout) return;
 
+      const resetToken = ++mobileViewportResetToken;
       const activeElement = document.activeElement;
       if (
         activeElement
@@ -5213,32 +5232,55 @@
         });
       };
 
-      resetScrollPosition();
-
-      const viewportMeta = document.querySelector('meta[name="viewport"]');
-      if (!viewportMeta) return;
-
-      // 画面切替のたびに一度だけ拡大を禁止して、ピンチズームや入力時の
-      // 自動拡大を強制的に100%へ戻す。その後、通常の拡大操作を再び有効にする。
-      viewportMeta.setAttribute(
-        "content",
-        "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-      );
-
       if (mobileViewportResetTimer) {
         window.clearTimeout(mobileViewportResetTimer);
+        mobileViewportResetTimer = 0;
+      }
+      if (mobileViewportResetFrame) {
+        window.cancelAnimationFrame(mobileViewportResetFrame);
+        mobileViewportResetFrame = 0;
       }
 
-      window.requestAnimationFrame(() => {
-        resetScrollPosition();
-        window.requestAnimationFrame(resetScrollPosition);
-      });
+      resetScrollPosition();
 
-      mobileViewportResetTimer = window.setTimeout(() => {
-        viewportMeta.setAttribute("content", defaultViewportContent);
+      const layoutWidth = Math.max(
+        320,
+        Math.round(document.documentElement.clientWidth || window.innerWidth || 390)
+      );
+      const nudgedWidth = Math.max(320, layoutWidth - 1);
+
+      // 第1段階：幅を1pxだけ変え、倍率上限を1.01にしてSafariへ
+      // viewportの再計算を促す。
+      replaceMobileViewportMeta(
+        `width=${nudgedWidth}, initial-scale=1.01, minimum-scale=1.0, maximum-scale=1.01, user-scalable=no`
+      );
+      void document.documentElement.offsetWidth;
+
+      mobileViewportResetFrame = window.requestAnimationFrame(() => {
+        if (resetToken !== mobileViewportResetToken) return;
+
+        // 第2段階：通常幅・100%固定へ差し替え、拡大状態を等倍へ戻す。
+        replaceMobileViewportMeta(
+          "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        );
+        void document.documentElement.offsetWidth;
         resetScrollPosition();
-        mobileViewportResetTimer = 0;
-      }, 220);
+
+        window.requestAnimationFrame(() => {
+          if (resetToken !== mobileViewportResetToken) return;
+          resetScrollPosition();
+        });
+
+        // 等倍化が終わった後は、通常どおりピンチ拡大できる設定へ戻す。
+        mobileViewportResetTimer = window.setTimeout(() => {
+          if (resetToken !== mobileViewportResetToken) return;
+          replaceMobileViewportMeta(defaultViewportContent);
+          void document.documentElement.offsetWidth;
+          resetScrollPosition();
+          mobileViewportResetTimer = 0;
+          mobileViewportResetFrame = 0;
+        }, 360);
+      });
     }
 
     function backHome() {
@@ -5262,7 +5304,6 @@
     }
 
     function renderQuestion() {
-      resetMobileViewportPosition();
       const q = currentQuestions[currentIndex];
       answered = false;
       resetNoteNameHintState();
@@ -5308,6 +5349,7 @@
         // 実際の初回タップ時に focus イベントが発生しなくなることがある。
         // 解答欄はユーザーがタップした瞬間に初めてフォーカスさせる。
         suppressNextNoteNameAutoFocus = false;
+        resetMobileViewportPosition();
         return;
       }
 
@@ -5318,6 +5360,8 @@
         btn.onclick = () => answerQuestion(choice, btn);
         choicesEl.appendChild(btn);
       });
+
+      resetMobileViewportPosition();
     }
 
     const repeatSymbolAssetPaths = {
@@ -6750,7 +6794,6 @@
     }
 
     function renderMelodyNameQuestion() {
-      resetMobileViewportPosition();
       const q = currentMelodyQuestion();
       if (!q || !melodyBoard) return;
       melodyNameChecked = false;
@@ -6773,6 +6816,7 @@
         melodyBoard.scrollLeft = 0;
         melodyBoard.scrollTop = 0;
         melodyBoard.querySelectorAll("textarea.melody-answer-input").forEach(resizeMelodyAnswerField);
+        resetMobileViewportPosition();
       });
     }
 
