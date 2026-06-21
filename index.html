@@ -1369,7 +1369,8 @@
       cursor: grabbing;
     }
 
-    .rhythm-tool.selected {
+    .rhythm-tool.selected,
+    .rhythm-tool.dragging {
       border-color: var(--primary);
       background: var(--soft);
       color: var(--primary-dark);
@@ -2584,6 +2585,26 @@
 
       body.rhythm-mobile-compact.rhythm-placement-mode .rhythm-slot {
         touch-action: none;
+      }
+
+      /* 配置マスは五線周辺だけに限定し、上下の余白は横スクロールに使えるようにする。 */
+      body.rhythm-mobile-compact .rhythm-slots {
+        top: 38px;
+        height: 96px;
+      }
+
+      /* 空きは判定文にだけ残し、スマホの楽譜上では着色しない。 */
+      body.rhythm-mobile-compact .rhythm-slot.rhythm-error-empty {
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      /* ドラッグ中の音価プレビュー（青）を、判定色より常に前面に表示する。 */
+      body.rhythm-mobile-compact .rhythm-slot.placement-preview,
+      body.rhythm-mobile-compact .rhythm-slot.placement-preview-overflow {
+        z-index: 8;
+        background: rgba(79, 109, 245, 0.26) !important;
+        box-shadow: inset 0 0 0 2px rgba(79, 109, 245, 0.72) !important;
       }
 
       body.rhythm-mobile-compact .rhythm-tool .rhythm-glyph {
@@ -7261,7 +7282,7 @@
         <button
           class="rhythm-tool ${selectedRhythmToolType === tool.type ? "selected" : ""}"
           type="button"
-          draggable="${isRhythmMobileInteractionMode() ? "false" : "true"}"
+          draggable="true"
           ondragstart="handleRhythmToolDragStart(event, '${tool.type}')"
           ondragend="activeRhythmPaletteDragType = null; clearRhythmPlacementPreview();"
           onpointerdown="handleRhythmToolPointerDown(event, '${tool.type}')"
@@ -7326,6 +7347,7 @@
       activeRhythmPalettePointerDrag = {
         pointerId: event.pointerId,
         type,
+        toolElement: event.currentTarget || null,
         startX: event.clientX,
         startY: event.clientY,
         lastX: event.clientX,
@@ -7350,6 +7372,7 @@
         drag.dragging = true;
         suppressNextRhythmToolClick = true;
         activeRhythmPaletteDragType = drag.type;
+        if (drag.toolElement) drag.toolElement.classList.add("dragging");
         createRhythmDragGhost(drag.type, event.clientX, event.clientY);
       }
 
@@ -7399,6 +7422,9 @@
     }
 
     function cleanupRhythmToolPointerDrag() {
+      if (activeRhythmPalettePointerDrag?.toolElement) {
+        activeRhythmPalettePointerDrag.toolElement.classList.remove("dragging");
+      }
       activeRhythmPalettePointerDrag = null;
       activeRhythmPaletteDragType = null;
       removeRhythmDragGhost();
@@ -7489,8 +7515,9 @@
 
     function moveRhythmDragGhost(x, y) {
       if (!rhythmDragGhost) return;
+      const verticalOffset = isRhythmMobileInteractionMode() ? 78 : 0;
       rhythmDragGhost.style.left = `${x}px`;
-      rhythmDragGhost.style.top = `${y}px`;
+      rhythmDragGhost.style.top = `${y - verticalOffset}px`;
     }
 
     function removeRhythmDragGhost() {
@@ -7988,7 +8015,8 @@
       const tool = getRhythmTool(toolType);
       if (!tool || !isRhythmToolAvailable(tool.type)) return;
 
-      if (selectedRhythmDifficulty !== "easy") {
+      const showFullLength = isRhythmMobileInteractionMode() || selectedRhythmDifficulty === "easy";
+      if (!showFullLength) {
         highlightRhythmSlotRange(measureIndex, startSlot, startSlot + getRhythmSlotUnit(), "placement-preview");
         return;
       }
@@ -8034,7 +8062,7 @@
           return Math.max(slotStart, item.startSlot) < Math.min(slotEnd, itemEndInsideMeasure);
         });
 
-        if (hasEmpty) classes.push("rhythm-error-empty");
+        if (hasEmpty && !isRhythmMobileInteractionMode()) classes.push("rhythm-error-empty");
         if (hasOverlap) classes.push("rhythm-error-overlap");
         if (hasOverflowHere) classes.push("rhythm-error-overflow");
       }
