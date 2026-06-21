@@ -3132,7 +3132,6 @@
 
     window.addEventListener("pageshow", () => {
       window.setTimeout(() => checkForAppUpdate(true), 250);
-      window.setTimeout(() => resetMobileViewportPosition(), 0);
     });
 
     window.addEventListener("focus", () => {
@@ -4098,7 +4097,6 @@
         return false;
       }
 
-      if (requestSafariZoomReset("loginStudent", { name })) return false;
 
       loginInProgress = true;
       currentStudentName = name;
@@ -4119,7 +4117,6 @@
     }
 
     function logoutStudent() {
-      if (requestSafariZoomReset("logoutStudent")) return;
       currentStudentName = "";
 
       if (studentNameInput) {
@@ -4690,7 +4687,6 @@
     }
 
     function showHistory() {
-      if (requestSafariZoomReset("showHistory")) return;
       const history = getHistory().map(normalizeDailyRecordCounts);
       historyList.innerHTML = "";
 
@@ -4878,9 +4874,6 @@
         renderMelodyOptionButtons();
       }
 
-      // 新しい画面を表示し終えてから等倍化する。Safariでは表示前より
-      // 表示後にviewportを再計算させる方が反映されやすい。
-      resetMobileViewportPosition();
     }
 
     function setQuestionCount(count) {
@@ -4947,7 +4940,6 @@
     }
 
     function showMelodyNameOptions() {
-      if (requestSafariZoomReset("showMelodyNameOptions")) return;
       if (app) app.classList.remove("repeat-wide", "rhythm-wide", "melody-wide");
       showScreen(melodyNameOptionScreen);
     }
@@ -5014,13 +5006,11 @@
     }
 
     function showNoteNameModes() {
-      if (requestSafariZoomReset("showNoteNameModes")) return;
       if (app) app.classList.remove("repeat-wide");
       showScreen(noteNameModeScreen);
     }
 
     function startQuiz(mode) {
-      if (requestSafariZoomReset("startQuiz", { mode })) return;
       currentMode = mode;
       currentQuestions = buildQuestionSet(mode, selectedQuestionCount);
       currentIndex = 0;
@@ -5152,7 +5142,6 @@
     }
 
     function restartSameQuiz() {
-      if (requestSafariZoomReset("restartSameQuiz")) return;
       if (!currentMode) {
         backHome();
         return;
@@ -5188,258 +5177,7 @@
       currentQuizProgressSaved = true;
     }
 
-    const SAFARI_ZOOM_RESET_SESSION_KEY = "musicTheorySafariZoomResetResumeV1";
-    const SAFARI_ZOOM_RESET_QUERY_KEY = "zoom_reset";
-    let safariZoomResetResumeRunning = false;
-
-    function isIosSafariTab() {
-      const userAgent = navigator.userAgent || "";
-      const isIos = /iPhone|iPad|iPod/i.test(userAgent)
-        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      const isSafari = /Safari/i.test(userAgent)
-        && !/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(userAgent);
-      const isStandalone = Boolean(window.navigator.standalone)
-        || window.matchMedia?.("(display-mode: standalone)").matches;
-      return isIos && isSafari && !isStandalone;
-    }
-
-    function isSafariPinchZoomed() {
-      const viewport = window.visualViewport;
-      if (!viewport) return false;
-      return Number(viewport.scale || 1) > 1.02;
-    }
-
-    function getQuestionByStoredId(questionId) {
-      if (!questionId) return null;
-      for (const data of Object.values(quizData)) {
-        const found = data.questions.find(question => question.id === questionId);
-        if (found) return found;
-      }
-      return null;
-    }
-
-    function createSafariZoomResetSnapshot(action, payload = {}) {
-      return {
-        action,
-        payload,
-        savedAt: Date.now(),
-        currentMode,
-        currentQuestionIds: currentQuestions.map(question => question?.id).filter(Boolean),
-        currentIndex,
-        score,
-        answered,
-        selectedQuestionCount,
-        quizStartedAt: quizStartedAt instanceof Date ? quizStartedAt.toISOString() : null,
-        correctQuestionIdsInCurrentQuiz: [...correctQuestionIdsInCurrentQuiz],
-        attemptedQuestionIdsInCurrentQuiz: [...attemptedQuestionIdsInCurrentQuiz],
-        wrongQuestionIdsInCurrentQuiz: [...wrongQuestionIdsInCurrentQuiz],
-        currentQuizProgressSaved,
-        currentMelodyQuestionIds: currentMelodyQuestions.map(question => question?.id).filter(Boolean),
-        currentMelodyIndex,
-        currentMelodyScore,
-        melodyNameChecked,
-        melodyBlankCheckPressCount,
-        selectedMelodyAccidentalFilter,
-        selectedMelodyClefFilter
-      };
-    }
-
-    function saveSafariZoomResetSnapshot(snapshot) {
-      try {
-        window.sessionStorage.setItem(
-          SAFARI_ZOOM_RESET_SESSION_KEY,
-          JSON.stringify(snapshot)
-        );
-        return true;
-      } catch (error) {
-        return false;
-      }
-    }
-
-    function takeSafariZoomResetSnapshot() {
-      try {
-        const raw = window.sessionStorage.getItem(SAFARI_ZOOM_RESET_SESSION_KEY);
-        window.sessionStorage.removeItem(SAFARI_ZOOM_RESET_SESSION_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object") return null;
-        if (Date.now() - Number(parsed.savedAt || 0) > 60 * 1000) return null;
-        return parsed;
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function restoreSafariZoomResetSnapshot(snapshot) {
-      if (!snapshot || typeof snapshot !== "object") return;
-
-      currentMode = snapshot.currentMode || null;
-      currentQuestions = (snapshot.currentQuestionIds || [])
-        .map(getQuestionByStoredId)
-        .filter(Boolean);
-      currentIndex = Math.max(0, Number(snapshot.currentIndex || 0));
-      score = Math.max(0, Number(snapshot.score || 0));
-      answered = Boolean(snapshot.answered);
-      selectedQuestionCount = [5, 10, 20].includes(Number(snapshot.selectedQuestionCount))
-        ? Number(snapshot.selectedQuestionCount)
-        : selectedQuestionCount;
-      quizStartedAt = snapshot.quizStartedAt ? new Date(snapshot.quizStartedAt) : null;
-      correctQuestionIdsInCurrentQuiz = [...(snapshot.correctQuestionIdsInCurrentQuiz || [])];
-      attemptedQuestionIdsInCurrentQuiz = [...(snapshot.attemptedQuestionIdsInCurrentQuiz || [])];
-      wrongQuestionIdsInCurrentQuiz = [...(snapshot.wrongQuestionIdsInCurrentQuiz || [])];
-      currentQuizProgressSaved = Boolean(snapshot.currentQuizProgressSaved);
-
-      currentMelodyQuestions = (snapshot.currentMelodyQuestionIds || [])
-        .map(getQuestionByStoredId)
-        .filter(Boolean);
-      currentMelodyIndex = Math.max(0, Number(snapshot.currentMelodyIndex || 0));
-      currentMelodyScore = Math.max(0, Number(snapshot.currentMelodyScore || 0));
-      melodyNameChecked = Boolean(snapshot.melodyNameChecked);
-      melodyBlankCheckPressCount = Math.max(0, Number(snapshot.melodyBlankCheckPressCount || 0));
-
-      if (["with", "none"].includes(snapshot.selectedMelodyAccidentalFilter)) {
-        selectedMelodyAccidentalFilter = snapshot.selectedMelodyAccidentalFilter;
-      }
-      if (["both", "treble", "bass"].includes(snapshot.selectedMelodyClefFilter)) {
-        selectedMelodyClefFilter = snapshot.selectedMelodyClefFilter;
-      }
-
-      setQuestionCount(selectedQuestionCount);
-      renderMelodyOptionButtons();
-    }
-
-    function removeSafariZoomResetQuery() {
-      try {
-        const url = new URL(window.location.href);
-        if (!url.searchParams.has(SAFARI_ZOOM_RESET_QUERY_KEY)) return;
-        url.searchParams.delete(SAFARI_ZOOM_RESET_QUERY_KEY);
-        window.history.replaceState(window.history.state, "", url.toString());
-      } catch (error) {
-        // URLを整理できなくてもアプリ本体はそのまま続行する。
-      }
-    }
-
-    function requestSafariZoomReset(action, payload = {}) {
-      if (safariZoomResetResumeRunning) return false;
-      if (!isIosSafariTab() || !isSafariPinchZoomed()) return false;
-
-      const snapshot = createSafariZoomResetSnapshot(action, payload);
-      if (!saveSafariZoomResetSnapshot(snapshot)) return false;
-
-      try {
-        const url = new URL(window.location.href);
-        url.searchParams.set(SAFARI_ZOOM_RESET_QUERY_KEY, String(Date.now()));
-        window.location.replace(url.toString());
-        return true;
-      } catch (error) {
-        return false;
-      }
-    }
-
-    function resetMobileViewportPosition() {
-      const isMobileLayout = window.matchMedia
-        && window.matchMedia("(max-width: 900px)").matches;
-      if (!isMobileLayout) return;
-
-      const activeElement = document.activeElement;
-      if (
-        activeElement
-        && activeElement !== document.body
-        && typeof activeElement.blur === "function"
-      ) {
-        activeElement.blur();
-      }
-
-      const resetScrollPosition = () => {
-        window.scrollTo({ left: 0, top: 0, behavior: "auto" });
-        document.documentElement.scrollTop = 0;
-        document.documentElement.scrollLeft = 0;
-        document.body.scrollTop = 0;
-        document.body.scrollLeft = 0;
-
-        document.querySelectorAll(
-          ".screen, .grid, .display-box, .melody-board, .rhythm-board, .learning-progress-grid, .home-settings-row"
-        ).forEach(element => {
-          element.scrollTop = 0;
-          element.scrollLeft = 0;
-        });
-      };
-
-      resetScrollPosition();
-      window.requestAnimationFrame(() => {
-        resetScrollPosition();
-        window.requestAnimationFrame(resetScrollPosition);
-      });
-      window.setTimeout(resetScrollPosition, 180);
-    }
-
-    function resumeSafariZoomResetIfNeeded() {
-      const snapshot = takeSafariZoomResetSnapshot();
-      removeSafariZoomResetQuery();
-      if (!snapshot) {
-        resetMobileViewportPosition();
-        return;
-      }
-
-      restoreSafariZoomResetSnapshot(snapshot);
-      safariZoomResetResumeRunning = true;
-
-      window.requestAnimationFrame(() => {
-        const payload = snapshot.payload || {};
-
-        switch (snapshot.action) {
-          case "loginStudent":
-            if (studentNameInput) studentNameInput.value = payload.name || "";
-            loginStudent();
-            break;
-          case "logoutStudent":
-            logoutStudent();
-            break;
-          case "showHistory":
-            showHistory();
-            break;
-          case "showNoteNameModes":
-            showNoteNameModes();
-            break;
-          case "showMelodyNameOptions":
-            showMelodyNameOptions();
-            break;
-          case "startQuiz":
-            startQuiz(payload.mode);
-            break;
-          case "startMelodyNamePractice":
-            startMelodyNamePractice();
-            break;
-          case "startRhythmCreator":
-            startRhythmCreator();
-            break;
-          case "restartSameQuiz":
-            restartSameQuiz();
-            break;
-          case "goNext":
-            goNext();
-            break;
-          case "goNextMelodyNameQuestion":
-            goNextMelodyNameQuestion();
-            break;
-          case "showLearningCompletionScreen":
-            showLearningCompletionScreen();
-            break;
-          case "backHome":
-          default:
-            backHome();
-            break;
-        }
-
-        window.setTimeout(() => {
-          safariZoomResetResumeRunning = false;
-          resetMobileViewportPosition();
-        }, 0);
-      });
-    }
-
     function backHome() {
-      if (requestSafariZoomReset("backHome")) return;
       if (app) {
         app.classList.remove("repeat-wide");
         app.classList.remove("rhythm-wide");
@@ -5505,7 +5243,6 @@
         // 実際の初回タップ時に focus イベントが発生しなくなることがある。
         // 解答欄はユーザーがタップした瞬間に初めてフォーカスさせる。
         suppressNextNoteNameAutoFocus = false;
-        resetMobileViewportPosition();
         return;
       }
 
@@ -5517,7 +5254,6 @@
         choicesEl.appendChild(btn);
       });
 
-      resetMobileViewportPosition();
     }
 
     const repeatSymbolAssetPaths = {
@@ -6436,7 +6172,6 @@
     }
 
     function goNext() {
-      if (requestSafariZoomReset("goNext")) return;
       if (currentIndex < currentQuestions.length - 1) {
         const isNoteNameMode = getBaseMode(currentMode || "") === "noteName";
 
@@ -6482,7 +6217,6 @@
     }
 
     function showLearningCompletionScreen() {
-      if (requestSafariZoomReset("showLearningCompletionScreen")) return;
       renderLearningCompletionScreen();
       showScreen(completionScreen);
     }
@@ -6594,7 +6328,6 @@
 
 
     function startMelodyNamePractice() {
-      if (requestSafariZoomReset("startMelodyNamePractice")) return;
       currentMode = "melodyName";
       currentQuestions = buildMelodyQuestionSet(selectedQuestionCount);
       if (currentQuestions.length === 0) {
@@ -6975,7 +6708,6 @@
         melodyBoard.scrollLeft = 0;
         melodyBoard.scrollTop = 0;
         melodyBoard.querySelectorAll("textarea.melody-answer-input").forEach(resizeMelodyAnswerField);
-        resetMobileViewportPosition();
       });
     }
 
@@ -7096,7 +6828,6 @@
     }
 
     function goNextMelodyNameQuestion() {
-      if (requestSafariZoomReset("goNextMelodyNameQuestion")) return;
       if (!melodyNameChecked) return;
       if (currentMelodyIndex < currentMelodyQuestions.length - 1) { currentMelodyIndex++; renderMelodyNameQuestion(); return; }
       showMelodyNameResult();
@@ -7297,7 +7028,6 @@
     }
 
     function startRhythmCreator() {
-      if (requestSafariZoomReset("startRhythmCreator")) return;
       currentMode = null;
       currentQuestions = [];
       currentIndex = 0;
@@ -8868,7 +8598,6 @@
     ensureRepeatSymbolAssets();
     setupEventListeners();
     loadSavedStudent();
-    resumeSafariZoomResetIfNeeded();
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
