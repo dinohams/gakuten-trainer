@@ -2317,12 +2317,12 @@
       }
 
       body.melody-mobile-compact .melody-answer-cell {
-        width: 44px;
+        width: 40px;
       }
 
       body.melody-mobile-compact .melody-answer-input {
-        border-radius: 9px;
-        padding: 5px 2px;
+        border-radius: 8px;
+        padding: 4px 2px;
         font-size: 16px;
       }
 
@@ -6139,35 +6139,41 @@
       return note.y <= 82 ? "down" : "up";
     }
 
-    function rhythmStemAndFlagHtml(note, x, y, beamed) {
+    function rhythmStemAndFlagHtml(note, x, y, beamed, compactLayout = false) {
       const filled = !["whole", "half"].includes(note.rhythmType);
       const direction = getMelodyNoteStemDirection(note);
-      const stemLength = 54;
+      const stemLength = compactLayout ? 44 : 54;
+      const noteHeadRx = compactLayout ? 10.5 : 13;
+      const noteHeadRy = compactLayout ? 6.5 : 8;
+      const hollowHeadRx = compactLayout ? 11.5 : 14;
+      const headStroke = compactLayout ? 2.4 : 3;
+      const stemOffset = compactLayout ? 9 : 12;
+      const strokeWidth = compactLayout ? 2.4 : 3;
       const head = filled
-        ? `<ellipse cx="${x}" cy="${y}" rx="13" ry="8" transform="rotate(-18 ${x} ${y})" fill="#202436" />`
-        : `<ellipse cx="${x}" cy="${y}" rx="14" ry="8" transform="rotate(-18 ${x} ${y})" fill="white" stroke="#202436" stroke-width="3" />`;
+        ? `<ellipse cx="${x}" cy="${y}" rx="${noteHeadRx}" ry="${noteHeadRy}" transform="rotate(-18 ${x} ${y})" fill="#202436" />`
+        : `<ellipse cx="${x}" cy="${y}" rx="${hollowHeadRx}" ry="${noteHeadRy}" transform="rotate(-18 ${x} ${y})" fill="white" stroke="#202436" stroke-width="${headStroke}" />`;
       let html = head;
       if (note.rhythmType !== "whole" && !beamed) {
-        const stemX = direction === "up" ? x + 12 : x - 12;
+        const stemX = direction === "up" ? x + stemOffset : x - stemOffset;
         const stemEndY = direction === "up" ? y - stemLength : y + stemLength;
-        html += `<line x1="${stemX}" y1="${y}" x2="${stemX}" y2="${stemEndY}" stroke="#202436" stroke-width="3" stroke-linecap="round" />`;
+        html += `<line x1="${stemX}" y1="${y}" x2="${stemX}" y2="${stemEndY}" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
         if (["eighth", "dottedEighth", "sixteenth"].includes(note.rhythmType)) {
           if (direction === "up") {
-            html += `<path d="M ${stemX} ${stemEndY} C ${stemX + 30} ${stemEndY + 8}, ${stemX + 27} ${stemEndY + 25}, ${stemX + 4} ${stemEndY + 20}" fill="none" stroke="#202436" stroke-width="3" stroke-linecap="round" />`;
+            html += `<path d="M ${stemX} ${stemEndY} C ${stemX + (compactLayout ? 24 : 30)} ${stemEndY + (compactLayout ? 6 : 8)}, ${stemX + (compactLayout ? 22 : 27)} ${stemEndY + (compactLayout ? 20 : 25)}, ${stemX + 3} ${stemEndY + (compactLayout ? 16 : 20)}" fill="none" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
           } else {
-            html += `<path d="M ${stemX} ${stemEndY} C ${stemX + 30} ${stemEndY - 8}, ${stemX + 27} ${stemEndY - 25}, ${stemX + 4} ${stemEndY - 20}" fill="none" stroke="#202436" stroke-width="3" stroke-linecap="round" />`;
+            html += `<path d="M ${stemX} ${stemEndY} C ${stemX + (compactLayout ? 24 : 30)} ${stemEndY - (compactLayout ? 6 : 8)}, ${stemX + (compactLayout ? 22 : 27)} ${stemEndY - (compactLayout ? 20 : 25)}, ${stemX + 3} ${stemEndY - (compactLayout ? 16 : 20)}" fill="none" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
           }
         }
         if (note.rhythmType === "sixteenth") {
           if (direction === "up") {
-            html += `<path d="M ${stemX} ${stemEndY + 13} C ${stemX + 28} ${stemEndY + 21}, ${stemX + 25} ${stemEndY + 36}, ${stemX + 4} ${stemEndY + 30}" fill="none" stroke="#202436" stroke-width="3" stroke-linecap="round" />`;
+            html += `<path d="M ${stemX} ${stemEndY + (compactLayout ? 10 : 13)} C ${stemX + (compactLayout ? 22 : 28)} ${stemEndY + (compactLayout ? 16 : 21)}, ${stemX + (compactLayout ? 20 : 25)} ${stemEndY + (compactLayout ? 29 : 36)}, ${stemX + 3} ${stemEndY + (compactLayout ? 24 : 30)}" fill="none" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
           } else {
-            html += `<path d="M ${stemX} ${stemEndY - 13} C ${stemX + 28} ${stemEndY - 21}, ${stemX + 25} ${stemEndY - 36}, ${stemX + 4} ${stemEndY - 30}" fill="none" stroke="#202436" stroke-width="3" stroke-linecap="round" />`;
+            html += `<path d="M ${stemX} ${stemEndY - (compactLayout ? 10 : 13)} C ${stemX + (compactLayout ? 22 : 28)} ${stemEndY - (compactLayout ? 16 : 21)}, ${stemX + (compactLayout ? 20 : 25)} ${stemEndY - (compactLayout ? 29 : 36)}, ${stemX + 3} ${stemEndY - (compactLayout ? 24 : 30)}" fill="none" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`;
           }
         }
       }
       if (["dottedQuarter", "dottedEighth"].includes(note.rhythmType)) {
-        html += `<circle cx="${x + 31}" cy="${y - 2}" r="3.6" fill="#202436" />`;
+        html += `<circle cx="${x + (compactLayout ? 24 : 31)}" cy="${y - 2}" r="${compactLayout ? 2.8 : 3.6}" fill="#202436" />`;
       }
       return html;
     }
@@ -6182,7 +6188,7 @@
       return (ok(previous) && previous.slot + previous.slots === note.slot) || (ok(next) && note.slot + note.slots === next.slot);
     }
 
-    function createMelodyBeamHtml(notes, notePositions) {
+    function createMelodyBeamHtml(notes, notePositions, compactLayout = false) {
       let html = "";
       let group = [];
       const groups = [];
@@ -6200,25 +6206,29 @@
         if (!first || !last) return;
         const downCount = groupNotes.filter(note => getMelodyNoteStemDirection(note) === "down").length;
         const direction = downCount > groupNotes.length / 2 ? "down" : "up";
+        const beamOffset = compactLayout ? 44 : 54;
         const beamY = direction === "up"
-          ? Math.min(...groupNotes.map(note => notePositions[note.index]?.y ?? 999)) - 54
-          : Math.max(...groupNotes.map(note => notePositions[note.index]?.y ?? -999)) + 54;
+          ? Math.min(...groupNotes.map(note => notePositions[note.index]?.y ?? 999)) - beamOffset
+          : Math.max(...groupNotes.map(note => notePositions[note.index]?.y ?? -999)) + beamOffset;
         groupNotes.forEach(note => {
           const pos = notePositions[note.index];
           if (!pos) return;
-          const stemX = direction === "up" ? pos.x + 12 : pos.x - 12;
-          html += `<line x1="${stemX}" y1="${pos.y}" x2="${stemX}" y2="${beamY}" stroke="#202436" stroke-width="3" stroke-linecap="round" />`;
+          const stemOffset = compactLayout ? 9 : 12;
+          const stemStroke = compactLayout ? 2.4 : 3;
+          const stemX = direction === "up" ? pos.x + stemOffset : pos.x - stemOffset;
+          html += `<line x1="${stemX}" y1="${pos.y}" x2="${stemX}" y2="${beamY}" stroke="#202436" stroke-width="${stemStroke}" stroke-linecap="round" />`;
         });
         const stemXFor = note => {
           const pos = notePositions[note.index];
-          return direction === "up" ? pos.x + 12 : pos.x - 12;
+          const stemOffset = compactLayout ? 9 : 12;
+          return direction === "up" ? pos.x + stemOffset : pos.x - stemOffset;
         };
         const firstX = stemXFor(groupNotes[0]);
         const lastX = stemXFor(groupNotes[groupNotes.length - 1]);
-        html += `<line x1="${firstX}" y1="${beamY}" x2="${lastX}" y2="${beamY}" stroke="#202436" stroke-width="7" stroke-linecap="butt" />`;
+        html += `<line x1="${firstX}" y1="${beamY}" x2="${lastX}" y2="${beamY}" stroke="#202436" stroke-width="${compactLayout ? 5.5 : 7}" stroke-linecap="butt" />`;
 
-        const secondY = direction === "up" ? beamY + 12 : beamY - 12;
-        const shortBeamLength = 28;
+        const secondY = direction === "up" ? beamY + (compactLayout ? 9 : 12) : beamY - (compactLayout ? 9 : 12);
+        const shortBeamLength = compactLayout ? 22 : 28;
         groupNotes.forEach((note, groupIndex) => {
           if (note.rhythmType !== "sixteenth") return;
           const currentX = stemXFor(note);
@@ -6229,7 +6239,7 @@
 
           if (nextIsSixteenth) {
             const nextX = stemXFor(nextNote);
-            html += `<line x1="${currentX}" y1="${secondY}" x2="${nextX}" y2="${secondY}" stroke="#202436" stroke-width="5" stroke-linecap="butt" />`;
+            html += `<line x1="${currentX}" y1="${secondY}" x2="${nextX}" y2="${secondY}" stroke="#202436" stroke-width="${compactLayout ? 4 : 5}" stroke-linecap="butt" />`;
             return;
           }
 
@@ -6244,26 +6254,28 @@
             secondaryStartX = currentX;
             secondaryEndX = Math.min(stemXFor(nextNote), currentX + shortBeamLength);
           }
-          html += `<line x1="${secondaryStartX}" y1="${secondY}" x2="${secondaryEndX}" y2="${secondY}" stroke="#202436" stroke-width="5" stroke-linecap="butt" />`;
+          html += `<line x1="${secondaryStartX}" y1="${secondY}" x2="${secondaryEndX}" y2="${secondY}" stroke="#202436" stroke-width="${compactLayout ? 4 : 5}" stroke-linecap="butt" />`;
         });
       });
       return html;
     }
 
-    function createMelodyLedgerLines(x, y, staffTop) {
+    function createMelodyLedgerLines(x, y, staffTop, compactLayout = false) {
       const lines = [];
-      const staffBottom = staffTop + 80;
-      const ledgerGap = 20;
+      const ledgerGap = compactLayout ? 14 : 20;
+      const staffBottom = staffTop + ledgerGap * 4;
+      const ledgerHalf = compactLayout ? 20 : 28;
+      const strokeWidth = compactLayout ? 2.2 : 3;
 
       if (y > staffBottom + 1) {
         for (let ledgerY = staffBottom + ledgerGap; ledgerY <= y + 1; ledgerY += ledgerGap) {
-          lines.push(`<line x1="${x - 28}" y1="${ledgerY}" x2="${x + 28}" y2="${ledgerY}" stroke="#202436" stroke-width="3" stroke-linecap="round" />`);
+          lines.push(`<line x1="${x - ledgerHalf}" y1="${ledgerY}" x2="${x + ledgerHalf}" y2="${ledgerY}" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`);
         }
       }
 
       if (y < staffTop - 1) {
         for (let ledgerY = staffTop - ledgerGap; ledgerY >= y - 1; ledgerY -= ledgerGap) {
-          lines.push(`<line x1="${x - 28}" y1="${ledgerY}" x2="${x + 28}" y2="${ledgerY}" stroke="#202436" stroke-width="3" stroke-linecap="round" />`);
+          lines.push(`<line x1="${x - ledgerHalf}" y1="${ledgerY}" x2="${x + ledgerHalf}" y2="${ledgerY}" stroke="#202436" stroke-width="${strokeWidth}" stroke-linecap="round" />`);
         }
       }
 
@@ -6276,19 +6288,19 @@
 
       if (assetPath) {
         if (isBass) {
-          const width = compactLayout ? 44 : 72;
-          const height = compactLayout ? 60 : 96;
-          return `<image aria-label="ヘ音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 8 : 14)}" y="${staffTop + (compactLayout ? 1 : -5)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+          const width = compactLayout ? 38 : 72;
+          const height = compactLayout ? 52 : 96;
+          return `<image aria-label="ヘ音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 7 : 14)}" y="${staffTop + (compactLayout ? 3 : -5)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
         }
 
-        const width = compactLayout ? 46 : 78;
-        const height = compactLayout ? 92 : 154;
-        return `<image aria-label="ト音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 2 : 10)}" y="${staffTop - (compactLayout ? 18 : 34)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+        const width = compactLayout ? 40 : 78;
+        const height = compactLayout ? 80 : 154;
+        return `<image aria-label="ト音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 1 : 10)}" y="${staffTop - (compactLayout ? 14 : 34)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
       return isBass
-        ? `<text x="0" y="0" font-size="${compactLayout ? 70 : 86}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" transform="translate(${staffLeft + (compactLayout ? 8 : 12)}, ${staffTop + (compactLayout ? 49 : 58)}) scale(0.9, 1)">𝄢</text>`
-        : `<text x="${staffLeft + (compactLayout ? 2 : 8)}" y="${staffTop + (compactLayout ? 69 : 84)}" font-size="${compactLayout ? 96 : 118}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
+        ? `<text x="0" y="0" font-size="${compactLayout ? 60 : 86}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" transform="translate(${staffLeft + (compactLayout ? 7 : 12)}, ${staffTop + (compactLayout ? 43 : 58)}) scale(0.9, 1)">𝄢</text>`
+        : `<text x="${staffLeft + (compactLayout ? 1 : 8)}" y="${staffTop + (compactLayout ? 59 : 84)}" font-size="${compactLayout ? 82 : 118}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
     }
 
     function createMelodyNameStaffHtml(question) {
@@ -6296,18 +6308,18 @@
       const measureCount = question.measureCount || 2;
       const compactLayout = Boolean(window.matchMedia && window.matchMedia("(max-width: 620px) and (orientation: portrait)").matches);
       const boardViewportWidth = compactLayout
-        ? Math.max(300, (melodyBoard?.clientWidth || window.innerWidth || 360) - 6)
+        ? Math.max(300, (melodyBoard?.clientWidth || window.innerWidth || 360) - 4)
         : 0;
 
       const measuresPerRow = compactLayout ? 1 : 2;
       const rowCount = compactLayout
         ? Math.max(1, Math.ceil(measureCount / measuresPerRow))
         : (measureCount === 4 ? 2 : 1);
-      const lineGap = compactLayout ? 14 : 20;
-      const rowHeight = compactLayout ? 166 : 250;
-      const melodyStaffTopOffset = compactLayout ? 48 : 86;
-      const staffLeft = compactLayout ? 8 : 52;
-      const clefWidth = compactLayout ? 52 : 104;
+      const lineGap = compactLayout ? 12 : 20;
+      const rowHeight = compactLayout ? 146 : 250;
+      const melodyStaffTopOffset = compactLayout ? 42 : 86;
+      const staffLeft = compactLayout ? 7 : 52;
+      const clefWidth = compactLayout ? 46 : 104;
       const musicLeft = staffLeft + clefWidth;
       const mobileRightPadding = 4;
       const measureWidth = compactLayout
@@ -6319,7 +6331,7 @@
       const svgWidth = compactLayout
         ? Math.ceil(staffRight + mobileRightPadding)
         : 1500;
-      const svgHeight = rowCount * rowHeight + (compactLayout ? 8 : 20);
+      const svgHeight = rowCount * rowHeight + (compactLayout ? 6 : 20);
       const notePositions = {};
       let svg = "";
 
@@ -6350,18 +6362,18 @@
         const rowY = row * rowHeight;
         const staffTop = rowY + melodyStaffTopOffset;
         const measureX = musicLeft + localMeasureIndex * measureWidth;
-        const measureInnerLeft = measureX + (compactLayout ? 20 : 38);
-        const measureInnerRight = measureX + measureWidth - (compactLayout ? 14 : 34);
+        const measureInnerLeft = measureX + (compactLayout ? 18 : 38);
+        const measureInnerRight = measureX + measureWidth - (compactLayout ? 12 : 34);
         const measureInnerWidth = measureInnerRight - measureInnerLeft;
         const x = measureInnerLeft + (note.slot / 16) * measureInnerWidth;
-        const yScale = compactLayout ? 0.72 : 1;
+        const yScale = compactLayout ? 0.62 : 1;
         const y = staffTop + (note.y - 42) * yScale;
         notePositions[note.index] = { x, y, row };
         const accidental = note.accidental === "sharp" ? "♯" : note.accidental === "flat" ? "♭" : note.accidental === "natural" ? "♮" : "";
-        const accidentalHtml = accidental ? `<text x="${x - (compactLayout ? 24 : 38)}" y="${y + 1}" font-size="${compactLayout ? 22 : 34}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">${accidental}</text>` : "";
-        svg += `${createMelodyLedgerLines(x, y, staffTop)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index))}`;
+        const accidentalHtml = accidental ? `<text x="${x - (compactLayout ? 20 : 38)}" y="${y + 1}" font-size="${compactLayout ? 18 : 34}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">${accidental}</text>` : "";
+        svg += `${createMelodyLedgerLines(x, y, staffTop, compactLayout)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index), compactLayout)}`;
       });
-      svg += createMelodyBeamHtml(notes, notePositions);
+      svg += createMelodyBeamHtml(notes, notePositions, compactLayout);
 
       const rowAnswerTopMap = {};
       for (let row = 0; row < rowCount; row++) {
@@ -6370,8 +6382,8 @@
           .filter(pos => pos && pos.row === row);
         const lowestNoteY = rowNotes.length > 0 ? Math.max(...rowNotes.map(pos => pos.y)) : row * rowHeight + 120;
         rowAnswerTopMap[row] = Math.max(
-          row * rowHeight + melodyStaffTopOffset + (compactLayout ? 82 : 124),
-          lowestNoteY + (compactLayout ? 28 : 46)
+          row * rowHeight + melodyStaffTopOffset + (compactLayout ? 70 : 124),
+          lowestNoteY + (compactLayout ? 24 : 46)
         );
       }
 
@@ -6381,7 +6393,7 @@
         const topPx = pos ? rowAnswerTopMap[pos.row] : 0;
         return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px"><input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" /><div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
       }).join("");
-      const wrapHeight = Math.max(svgHeight + (compactLayout ? 22 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 42 : 56));
+      const wrapHeight = Math.max(svgHeight + (compactLayout ? 18 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 36 : 56));
       const widthStyle = compactLayout ? 'width:100%;min-width:0;' : "";
       return `<div class="melody-staff-wrap" style="position:relative;height:${wrapHeight}px;${widthStyle}"><svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${question.clefLabel}・${measureCount}小節の旋律" style="overflow:visible;display:block;">${svg}</svg><div class="melody-answer-layer">${answerCells}</div></div>`;
     }
