@@ -1385,12 +1385,24 @@
       vertical-align: middle;
     }
 
+    .rhythm-tool .rhythm-glyph {
+      width: 38px;
+      height: 46px;
+      margin: -5px auto -7px;
+      flex: 0 0 auto;
+    }
+
     .rhythm-tool-label {
       display: inline-flex;
       flex-direction: column;
       gap: 1px;
-      align-items: flex-start;
+      align-items: center;
       line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .rhythm-tool-name {
+      display: block;
       white-space: nowrap;
     }
 
@@ -1781,6 +1793,14 @@
 
     .rhythm-rest-block {
       fill: #202436;
+    }
+
+    .rhythm-rest-stroke {
+      fill: none;
+      stroke: #202436;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .rhythm-rest-text {
@@ -2483,6 +2503,137 @@
     }
 
 
+    /* スマホ縦向きのリズム創作。記号カードのはみ出しを防ぎ、外側と各要素の余白を詰める。 */
+    @media (max-width: 620px) and (orientation: portrait) {
+      body.rhythm-mobile-compact {
+        margin: 0;
+        padding: 0;
+        display: block;
+        background: #ffffff;
+        overflow-x: hidden;
+      }
+
+      body.rhythm-mobile-compact .app.rhythm-wide {
+        width: 100%;
+        max-width: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      body.rhythm-mobile-compact .app.rhythm-wide main {
+        padding: 6px;
+      }
+
+      body.rhythm-mobile-compact #rhythmScreen > .back-link {
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+
+      body.rhythm-mobile-compact #rhythmScreen > h2 {
+        margin: 0 0 4px;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      body.rhythm-mobile-compact #rhythmScreen > .small-note {
+        margin: 0 0 7px;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      body.rhythm-mobile-compact .rhythm-board {
+        padding: 5px 4px;
+        border-radius: 14px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      body.rhythm-mobile-compact .rhythm-staff-panel {
+        min-width: 920px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-palette {
+        margin-top: 7px;
+        padding: 8px;
+        border-radius: 14px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-palette-title {
+        margin-bottom: 6px;
+        font-size: 15px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-tool-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-tool {
+        position: relative;
+        min-width: 0;
+        min-height: 70px;
+        padding: 5px 3px 4px;
+        border-radius: 12px;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      body.rhythm-mobile-compact .rhythm-tool .rhythm-glyph {
+        width: 38px;
+        height: 45px;
+        margin: -4px auto -6px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-tool-label {
+        width: 100%;
+        align-items: center;
+        gap: 0;
+        min-width: 0;
+      }
+
+      body.rhythm-mobile-compact .rhythm-tool-name {
+        max-width: 100%;
+        font-size: 12px;
+        line-height: 1.15;
+        letter-spacing: -0.04em;
+      }
+
+      body.rhythm-mobile-compact .rhythm-tool-meta {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 9px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-help {
+        margin-top: 6px;
+        font-size: 10.5px;
+        line-height: 1.45;
+      }
+
+      body.rhythm-mobile-compact .rhythm-layout > .actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-layout > .actions .main-btn,
+      body.rhythm-mobile-compact .rhythm-layout > .actions .sub-btn {
+        width: 100%;
+        min-width: 0;
+        padding: 10px 4px;
+        border-radius: 12px;
+        font-size: 13px;
+      }
+
+      body.rhythm-mobile-compact .rhythm-results {
+        margin-top: 6px;
+      }
+    }
+
+
     /* スマホ版トップページだけ、横幅を使い切り、進捗と各セクションの縦幅を圧縮する。 */
     @media (max-width: 720px) {
       body.home-mobile-compact {
@@ -3132,6 +3283,7 @@
 
     window.addEventListener("pageshow", () => {
       window.setTimeout(() => checkForAppUpdate(true), 250);
+      window.setTimeout(() => resetMobileViewportPosition(), 0);
     });
 
     window.addEventListener("focus", () => {
@@ -4829,6 +4981,7 @@
       renderMusicQuote();
       document.body.classList.toggle("home-mobile-compact", screen === homeScreen);
       document.body.classList.toggle("melody-mobile-compact", screen === melodyNameScreen);
+      document.body.classList.toggle("rhythm-mobile-compact", screen === rhythmScreen);
       document.body.classList.toggle(
         "note-value-mobile-compact",
         screen === quizScreen && getBaseMode(currentMode || "") === "noteValue"
@@ -7041,6 +7194,12 @@
       loadRhythmDraftIfValid();
       renderRhythmTools();
       renderRhythmCreator();
+      ensureRepeatSymbolAssets().then(() => {
+        if (rhythmScreen && rhythmScreen.classList.contains("active")) {
+          renderRhythmTools();
+          renderRhythmCreator();
+        }
+      });
     }
 
     function renderRhythmTools() {
@@ -7055,7 +7214,7 @@
           ondragend="activeRhythmPaletteDragType = null; clearRhythmPlacementPreview();"
           onclick="selectRhythmTool('${tool.type}')"
         >
-          <span class="rhythm-tool-label"><span class="rhythm-symbol">${tool.symbol}</span><span>${tool.label}</span></span>
+          <span class="rhythm-tool-label">${createRhythmGlyphHtml(tool)}<span class="rhythm-tool-name">${tool.label}</span></span>
           <span class="rhythm-tool-meta">${formatBeatText(tool.beats)}</span>
         </button>
       `).join("");
@@ -7093,11 +7252,12 @@
       }
     }
 
-    function createRhythmDragGhost(symbol, x, y) {
+    function createRhythmDragGhost(toolType, x, y) {
       removeRhythmDragGhost();
       rhythmDragGhost = document.createElement("div");
       rhythmDragGhost.className = "rhythm-drag-ghost";
-      rhythmDragGhost.textContent = symbol;
+      const tool = getRhythmTool(toolType);
+      rhythmDragGhost.innerHTML = tool ? createRhythmGlyphHtml(tool) : "";
       document.body.appendChild(rhythmDragGhost);
       moveRhythmDragGhost(x, y);
     }
@@ -7528,7 +7688,7 @@
       if (!activeRhythmPointerDrag.moved && Math.hypot(dx, dy) >= 6) {
         activeRhythmPointerDrag.moved = true;
         setRhythmDraggedItemVisual(true);
-        createRhythmDragGhost(activeRhythmPointerDrag.symbol, event.clientX, event.clientY);
+        createRhythmDragGhost(activeRhythmPointerDrag.toolType, event.clientX, event.clientY);
       }
 
       if (activeRhythmPointerDrag.moved) {
@@ -7741,18 +7901,46 @@
         `;
       }
 
-      const restSymbol = tool.base === "quarterRest" ? "𝄽" : tool.base === "sixteenthRest" ? "𝄿" : "𝄾";
-      const restClass = tool.base === "quarterRest" ? "quarter" : tool.base === "sixteenthRest" ? "sixteenth" : "eighth";
+      const restAssetKey = tool.base === "quarterRest" ? "4k" : tool.base === "sixteenthRest" ? "16k" : "8k";
+      const restAssetPath = repeatSymbolAssetPaths[restAssetKey];
+      if (restAssetPath) {
+        return `
+          <svg class="rhythm-glyph rhythm-rest-glyph" viewBox="0 0 74 92" aria-hidden="true">
+            <image href="${restAssetPath}" x="10" y="2" width="54" height="84" preserveAspectRatio="xMidYMid meet"></image>
+            ${tool.dotted ? `<circle class="rhythm-dot" cx="59" cy="48" r="3.4"></circle>` : ""}
+          </svg>
+        `;
+      }
 
-      const restX = tool.base === "quarterRest" ? 36 : 36;
-      const restY = tool.base === "quarterRest" ? 74 : 80;
+      if (tool.base === "quarterRest") {
+        return `
+          <svg class="rhythm-glyph rhythm-rest-glyph" viewBox="0 0 74 92" aria-hidden="true">
+            <path class="rhythm-rest-stroke" d="M40 13 L28 33 L42 47 L31 62 L39 77"></path>
+            <path class="rhythm-rest-stroke" d="M31 62 C24 65, 25 75, 38 77"></path>
+            ${tool.dotted ? `<circle class="rhythm-dot" cx="57" cy="48" r="3.4"></circle>` : ""}
+          </svg>
+        `;
+      }
+
+      if (tool.base === "sixteenthRest") {
+        return `
+          <svg class="rhythm-glyph rhythm-rest-glyph" viewBox="0 0 74 92" aria-hidden="true">
+            <circle class="rhythm-rest-block" cx="27" cy="23" r="5"></circle>
+            <circle class="rhythm-rest-block" cx="38" cy="40" r="5"></circle>
+            <path class="rhythm-rest-stroke" d="M30 25 C43 29, 47 38, 41 48 L31 79"></path>
+            <path class="rhythm-rest-stroke" d="M41 42 C51 46, 52 54, 46 61"></path>
+            ${tool.dotted ? `<circle class="rhythm-dot" cx="59" cy="48" r="3.4"></circle>` : ""}
+          </svg>
+        `;
+      }
 
       return `
-  <svg class="rhythm-glyph rhythm-rest-glyph" viewBox="0 0 74 92" aria-hidden="true">
-    <text class="rhythm-rest-text ${restClass}" x="${restX}" y="${restY}" text-anchor="middle">${restSymbol}</text>
-    ${tool.dotted ? `<circle class="rhythm-dot" cx="56" cy="${restY - 20}" r="3.4"></circle>` : ""}
-  </svg>
-`;
+        <svg class="rhythm-glyph rhythm-rest-glyph" viewBox="0 0 74 92" aria-hidden="true">
+          <circle class="rhythm-rest-block" cx="29" cy="27" r="5"></circle>
+          <path class="rhythm-rest-stroke" d="M32 29 C45 34, 48 43, 41 53 L31 79"></path>
+          ${tool.dotted ? `<circle class="rhythm-dot" cx="59" cy="48" r="3.4"></circle>` : ""}
+        </svg>
+      `;
     }
 
     function createRhythmItemHtml(item, measureIndex) {
