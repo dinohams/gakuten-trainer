@@ -4712,9 +4712,10 @@
       renderNoteNameHintControls();
 
       if (isTypedAnswer) {
-        const shouldAutoFocus = !suppressNextNoteNameAutoFocus;
+        // iPhoneでは画面表示直後の自動フォーカスだけ先に成立し、
+        // 実際の初回タップ時に focus イベントが発生しなくなることがある。
+        // 解答欄はユーザーがタップした瞬間に初めてフォーカスさせる。
         suppressNextNoteNameAutoFocus = false;
-        if (noteAnswerInput && shouldAutoFocus) setTimeout(() => noteAnswerInput.focus(), 0);
         return;
       }
 
