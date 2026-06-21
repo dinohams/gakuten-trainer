@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>楽典トレーナー</title>
   <style>
     :root {
@@ -2115,7 +2118,8 @@
       }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">    ensureRepeatSymbolAssets();
+  </script>
 </head>
 
 <body>
@@ -2466,6 +2470,99 @@
         }
       };
     })();
+
+    const APP_UPDATE_HASH_KEY = "musicTheoryTrainerAppSourceHashV1";
+    const APP_UPDATE_MIN_INTERVAL_MS = 30000;
+    let appUpdateCheckRunning = false;
+    let lastAppUpdateCheckAt = 0;
+
+    function fallbackTextHash(text) {
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return (hash >>> 0).toString(16).padStart(8, "0");
+    }
+
+    async function createTextHash(text) {
+      try {
+        if (window.crypto && window.crypto.subtle && window.TextEncoder) {
+          const data = new TextEncoder().encode(text);
+          const digest = await window.crypto.subtle.digest("SHA-256", data);
+          return Array.from(new Uint8Array(digest))
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+        }
+      } catch (error) {
+        // 暗号化ハッシュが使えない環境では簡易ハッシュへ切り替える。
+      }
+      return fallbackTextHash(text);
+    }
+
+    function getCanonicalAppUrl() {
+      const url = new URL("./index.html", window.location.href);
+      url.search = "";
+      url.hash = "";
+      return url;
+    }
+
+    async function checkForAppUpdate(force = false) {
+      if (!/^https?:$/.test(window.location.protocol)) return;
+
+      const now = Date.now();
+      if (appUpdateCheckRunning) return;
+      if (!force && now - lastAppUpdateCheckAt < APP_UPDATE_MIN_INTERVAL_MS) return;
+
+      appUpdateCheckRunning = true;
+      lastAppUpdateCheckAt = now;
+
+      try {
+        const checkUrl = getCanonicalAppUrl();
+        checkUrl.searchParams.set("__update_check", String(now));
+
+        const response = await fetch(checkUrl.toString(), {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
+
+        if (!response.ok) return;
+
+        const latestHtml = await response.text();
+        const latestHash = await createTextHash(latestHtml);
+        const savedHash = safeStorage.getItem(APP_UPDATE_HASH_KEY);
+
+        if (!savedHash) {
+          safeStorage.setItem(APP_UPDATE_HASH_KEY, latestHash);
+          return;
+        }
+
+        if (savedHash !== latestHash) {
+          safeStorage.setItem(APP_UPDATE_HASH_KEY, latestHash);
+
+          const reloadUrl = new URL(window.location.href);
+          reloadUrl.searchParams.delete("__update_check");
+          reloadUrl.searchParams.set("app_update", latestHash.slice(0, 12));
+          window.location.replace(reloadUrl.toString());
+        }
+      } catch (error) {
+        // 一時的に通信できない場合は、現在の画面をそのまま使用する。
+      } finally {
+        appUpdateCheckRunning = false;
+      }
+    }
+
+    window.addEventListener("pageshow", () => {
+      window.setTimeout(() => checkForAppUpdate(true), 250);
+    });
+
+    window.addEventListener("focus", () => {
+      checkForAppUpdate();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) checkForAppUpdate(true);
+    });
 
     function noteNameData() {
       return {
@@ -4514,6 +4611,9 @@
       segno: null,
       toon: null
     };
+    const repeatSymbolAssetCacheToken = encodeURIComponent(
+      safeStorage.getItem(APP_UPDATE_HASH_KEY) || String(Date.now())
+    );
     let repeatSymbolAssetsReady = false;
     let repeatSymbolAssetsPromise = null;
 
@@ -4533,7 +4633,7 @@
       const extensions = ['png', 'svg', 'webp', 'jpg', 'jpeg'];
       for (const folder of folders) {
         for (const ext of extensions) {
-          const candidate = `${folder}/${kind}.${ext}`;
+          const candidate = `${folder}/${kind}.${ext}?v=${repeatSymbolAssetCacheToken}`;
           const found = await loadImageCandidate(candidate);
           if (found) {
             repeatSymbolAssetPaths[kind] = found;
@@ -7448,8 +7548,6 @@
 
       return array;
     }
-
-    ensureRepeatSymbolAssets();
   </script>
 </body>
 
