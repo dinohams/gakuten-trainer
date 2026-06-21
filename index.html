@@ -2236,6 +2236,124 @@
       display: none;
     }
 
+    /* スマホ縦向きの旋律音名問題。1小節分を画面内に収めつつ、2小節目は横スクロールで確認する。 */
+    @media (max-width: 620px) and (orientation: portrait) {
+      body.melody-mobile-compact {
+        margin: 0;
+        padding: 0;
+        display: block;
+        background: #ffffff;
+        overflow-x: hidden;
+      }
+
+      body.melody-mobile-compact .app.melody-wide {
+        width: 100%;
+        max-width: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      body.melody-mobile-compact .app.melody-wide main {
+        padding: 6px;
+      }
+
+      body.melody-mobile-compact .melody-back-link {
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+
+      body.melody-mobile-compact .melody-title-row {
+        display: block;
+        margin: 0 0 6px;
+      }
+
+      body.melody-mobile-compact .melody-title-row h2 {
+        margin: 0 0 3px;
+        font-size: 21px;
+        line-height: 1.2;
+        white-space: normal;
+      }
+
+      body.melody-mobile-compact .melody-title-note {
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      body.melody-mobile-compact .melody-question-top {
+        display: grid;
+        grid-template-columns: auto minmax(70px, 1fr) auto;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 7px;
+      }
+
+      body.melody-mobile-compact .melody-question-top .badge {
+        padding: 6px 9px;
+        font-size: 13px;
+      }
+
+      body.melody-mobile-compact .melody-question-top .progress-wrap {
+        height: 8px;
+      }
+
+      body.melody-mobile-compact .melody-practice-card {
+        padding: 7px 6px 9px;
+        border-radius: 16px;
+      }
+
+      body.melody-mobile-compact .melody-board {
+        padding: 4px 2px 6px;
+        border-radius: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scroll-behavior: smooth;
+      }
+
+      body.melody-mobile-compact .melody-answer-cell {
+        width: 50px;
+      }
+
+      body.melody-mobile-compact .melody-answer-input {
+        border-radius: 8px;
+        padding: 6px 1px;
+        font-size: 12px;
+      }
+
+      body.melody-mobile-compact .melody-correct-label {
+        min-height: 14px;
+        margin-top: 2px;
+        font-size: 10px;
+      }
+
+      body.melody-mobile-compact .melody-feedback {
+        margin-top: 7px;
+        padding: 10px;
+        border-radius: 13px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      body.melody-mobile-compact .melody-practice-card > .actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 8px;
+      }
+
+      body.melody-mobile-compact .melody-practice-card > .actions .main-btn,
+      body.melody-mobile-compact .melody-practice-card > .actions .sub-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 11px 8px;
+        font-size: 14px;
+      }
+    }
+
+
     /* スマホ版トップページだけ、横幅を使い切り、進捗と各セクションの縦幅を圧縮する。 */
     @media (max-width: 720px) {
       body.home-mobile-compact {
@@ -4526,6 +4644,7 @@
     function showScreen(screen) {
       renderMusicQuote();
       document.body.classList.toggle("home-mobile-compact", screen === homeScreen);
+      document.body.classList.toggle("melody-mobile-compact", screen === melodyNameScreen);
 
       if (app) {
         app.classList.toggle("home-wide", screen === homeScreen);
@@ -4948,7 +5067,8 @@
 
     const repeatSymbolAssetPaths = {
       segno: null,
-      toon: null
+      toon: null,
+      heon: null
     };
     const repeatSymbolAssetCacheToken = encodeURIComponent(
       safeStorage.getItem(APP_UPDATE_HASH_KEY) || String(Date.now())
@@ -4988,7 +5108,8 @@
       if (!repeatSymbolAssetsPromise) {
         repeatSymbolAssetsPromise = Promise.all([
           resolveRepeatSymbolAsset('segno'),
-          resolveRepeatSymbolAsset('toon')
+          resolveRepeatSymbolAsset('toon'),
+          resolveRepeatSymbolAsset('heon')
         ]).then(() => {
           repeatSymbolAssetsReady = true;
           return repeatSymbolAssetPaths;
@@ -5975,7 +6096,8 @@
     }
 
 
-    function startMelodyNamePractice() {
+    async function startMelodyNamePractice() {
+      await ensureRepeatSymbolAssets();
       currentMode = "melodyName";
       currentQuestions = buildMelodyQuestionSet(selectedQuestionCount);
       if (currentQuestions.length === 0) {
@@ -6126,10 +6248,10 @@
       return html;
     }
 
-    function createMelodyLedgerLines(x, y, staffTop) {
+    function createMelodyLedgerLines(x, y, staffTop, lineGap = 20) {
       const lines = [];
-      const staffBottom = staffTop + 80;
-      const ledgerGap = 20;
+      const staffBottom = staffTop + lineGap * 4;
+      const ledgerGap = lineGap;
 
       if (y > staffBottom + 1) {
         for (let ledgerY = staffBottom + ledgerGap; ledgerY <= y + 1; ledgerY += ledgerGap) {
@@ -6146,21 +6268,54 @@
       return lines.join("");
     }
 
+    function createMelodyClefHtml(clef, staffLeft, staffTop, lineGap, compactLayout) {
+      const isBass = clef === "bass";
+      const assetPath = isBass ? repeatSymbolAssetPaths.heon : repeatSymbolAssetPaths.toon;
+
+      if (assetPath) {
+        if (isBass) {
+          const width = compactLayout ? 54 : 72;
+          const height = compactLayout ? 72 : 96;
+          return `<image aria-label="ヘ音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 8 : 14)}" y="${staffTop + (compactLayout ? -2 : -5)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+        }
+
+        const width = compactLayout ? 58 : 78;
+        const height = compactLayout ? 118 : 154;
+        return `<image aria-label="ト音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 4 : 10)}" y="${staffTop - (compactLayout ? 24 : 34)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+      }
+
+      return isBass
+        ? `<text x="0" y="0" font-size="${compactLayout ? 70 : 86}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" transform="translate(${staffLeft + (compactLayout ? 8 : 12)}, ${staffTop + (compactLayout ? 49 : 58)}) scale(0.9, 1)">𝄢</text>`
+        : `<text x="${staffLeft + (compactLayout ? 2 : 8)}" y="${staffTop + (compactLayout ? 69 : 84)}" font-size="${compactLayout ? 96 : 118}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
+    }
+
     function createMelodyNameStaffHtml(question) {
       const notes = question.notes || [];
       const measureCount = question.measureCount || 2;
-      const svgWidth = 1500;
+      const compactLayout = Boolean(window.matchMedia && window.matchMedia("(max-width: 620px) and (orientation: portrait)").matches);
+      const boardViewportWidth = compactLayout
+        ? Math.max(300, (melodyBoard?.clientWidth || window.innerWidth || 360) - 8)
+        : 0;
+
       const rowCount = measureCount === 4 ? 2 : 1;
-      const measuresPerRow = 2;
-      const rowHeight = 250;
-      const svgHeight = rowCount * rowHeight + 20;
-      const staffLeft = 52;
-      const staffRight = 1460;
-      const lineGap = 20;
-      const melodyStaffTopOffset = 86;
-      const clefWidth = 104;
+      const measuresPerRow = compactLayout ? measureCount : 2;
+      const lineGap = compactLayout ? 16 : 20;
+      const rowHeight = compactLayout ? 218 : 250;
+      const melodyStaffTopOffset = compactLayout ? 66 : 86;
+      const staffLeft = compactLayout ? 10 : 52;
+      const clefWidth = compactLayout ? 70 : 104;
       const musicLeft = staffLeft + clefWidth;
-      const measureWidth = (staffRight - musicLeft) / measuresPerRow;
+      const mobileRightPadding = 6;
+      const measureWidth = compactLayout
+        ? Math.max(220, boardViewportWidth - musicLeft - mobileRightPadding)
+        : (1460 - musicLeft) / 2;
+      const staffRight = compactLayout
+        ? musicLeft + measureCount * measureWidth
+        : 1460;
+      const svgWidth = compactLayout
+        ? Math.ceil(staffRight + mobileRightPadding)
+        : 1500;
+      const svgHeight = rowCount * rowHeight + 20;
       const notePositions = {};
       let svg = "";
 
@@ -6171,18 +6326,17 @@
         const lastMeasureExclusive = Math.min(firstMeasure + measuresPerRow, measureCount);
         const rowMeasureCount = lastMeasureExclusive - firstMeasure;
         const rowRight = musicLeft + rowMeasureCount * measureWidth;
-        svg += [0, 1, 2, 3, 4].map(i => `<line x1="${staffLeft}" y1="${staffTop + i * lineGap}" x2="${rowRight}" y2="${staffTop + i * lineGap}" stroke="#202436" stroke-width="3" />`).join("");
-        svg += question.clef === "bass"
-          ? `<text x="0" y="0" font-size="86" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" transform="translate(${staffLeft + 12}, ${staffTop + 58}) scale(0.9, 1)">𝄢</text>`
-          : `<text x="${staffLeft + 8}" y="${staffTop + 84}" font-size="118" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
+        svg += [0, 1, 2, 3, 4].map(i => `<line x1="${staffLeft}" y1="${staffTop + i * lineGap}" x2="${rowRight}" y2="${staffTop + i * lineGap}" stroke="#202436" stroke-width="${compactLayout ? 2.4 : 3}" />`).join("");
+        svg += createMelodyClefHtml(question.clef, staffLeft, staffTop, lineGap, compactLayout);
+
         for (let localMeasure = 1; localMeasure <= rowMeasureCount; localMeasure++) {
           const globalMeasure = firstMeasure + localMeasure;
           const x = musicLeft + localMeasure * measureWidth;
           const isFinal = globalMeasure === measureCount;
           if (isFinal) {
-            svg += `<line x1="${x - 8}" y1="${staffTop}" x2="${x - 8}" y2="${staffTop + lineGap * 4}" stroke="#202436" stroke-width="2.4" />`;
+            svg += `<line x1="${x - (compactLayout ? 6 : 8)}" y1="${staffTop}" x2="${x - (compactLayout ? 6 : 8)}" y2="${staffTop + lineGap * 4}" stroke="#202436" stroke-width="${compactLayout ? 2 : 2.4}" />`;
           }
-          svg += `<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffTop + lineGap * 4}" stroke="#202436" stroke-width="${isFinal ? 5 : 3}" />`;
+          svg += `<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffTop + lineGap * 4}" stroke="#202436" stroke-width="${isFinal ? (compactLayout ? 4 : 5) : (compactLayout ? 2.4 : 3)}" />`;
         }
       }
 
@@ -6192,17 +6346,16 @@
         const rowY = row * rowHeight;
         const staffTop = rowY + melodyStaffTopOffset;
         const measureX = musicLeft + localMeasureIndex * measureWidth;
-        // 音符の横位置は「音価の中央」ではなく「拍の開始位置」を基準にする。
-        // これで2分音符→4分音符のような並びでも、時間幅が見た目に反映される。
-        const measureInnerLeft = measureX + 38;
-        const measureInnerRight = measureX + measureWidth - 34;
+        const measureInnerLeft = measureX + (compactLayout ? 22 : 38);
+        const measureInnerRight = measureX + measureWidth - (compactLayout ? 18 : 34);
         const measureInnerWidth = measureInnerRight - measureInnerLeft;
         const x = measureInnerLeft + (note.slot / 16) * measureInnerWidth;
-        const y = staffTop + note.y - 42;
+        const yScale = compactLayout ? 0.8 : 1;
+        const y = staffTop + (note.y - 42) * yScale;
         notePositions[note.index] = { x, y, row };
         const accidental = note.accidental === "sharp" ? "♯" : note.accidental === "flat" ? "♭" : note.accidental === "natural" ? "♮" : "";
-        const accidentalHtml = accidental ? `<text x="${x - 38}" y="${y + 1}" font-size="34" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">${accidental}</text>` : "";
-        svg += `${createMelodyLedgerLines(x, y, staffTop)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index))}`;
+        const accidentalHtml = accidental ? `<text x="${x - (compactLayout ? 29 : 38)}" y="${y + 1}" font-size="${compactLayout ? 27 : 34}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">${accidental}</text>` : "";
+        svg += `${createMelodyLedgerLines(x, y, staffTop, lineGap)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index))}`;
       });
       svg += createMelodyBeamHtml(notes, notePositions);
 
@@ -6212,18 +6365,39 @@
           .map(note => notePositions[note.index])
           .filter(pos => pos && pos.row === row);
         const lowestNoteY = rowNotes.length > 0 ? Math.max(...rowNotes.map(pos => pos.y)) : row * rowHeight + 120;
-        // 低い音や加線が出る段では、入力欄を少し下げて音符とかぶらないようにする。
-        rowAnswerTopMap[row] = Math.max(row * rowHeight + melodyStaffTopOffset + 124, lowestNoteY + 46);
+        rowAnswerTopMap[row] = Math.max(
+          row * rowHeight + melodyStaffTopOffset + (compactLayout ? 102 : 124),
+          lowestNoteY + (compactLayout ? 37 : 46)
+        );
+      }
+
+      let compactAnswerWidth = 50;
+      if (compactLayout) {
+        const gaps = [];
+        for (let measureIndex = 0; measureIndex < measureCount; measureIndex++) {
+          const measurePositions = notes
+            .filter(note => note.measureIndex === measureIndex)
+            .map(note => notePositions[note.index]?.x)
+            .filter(Number.isFinite)
+            .sort((a, b) => a - b);
+          for (let index = 1; index < measurePositions.length; index++) {
+            gaps.push(measurePositions[index] - measurePositions[index - 1]);
+          }
+        }
+        const minimumGap = gaps.length > 0 ? Math.min(...gaps) : 50;
+        compactAnswerWidth = Math.max(30, Math.min(46, Math.floor(minimumGap - 3)));
       }
 
       const answerCells = notes.map((note, index) => {
         const pos = notePositions[note.index];
         const leftPercent = pos ? (pos.x / svgWidth) * 100 : 0;
         const topPx = pos ? rowAnswerTopMap[pos.row] : 0;
-        return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px"><input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" /><div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
+        const widthStyle = compactLayout ? `width:${compactAnswerWidth}px;` : "";
+        return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px;${widthStyle}"><input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" /><div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
       }).join("");
-      const wrapHeight = Math.max(svgHeight + 56, Math.max(...Object.values(rowAnswerTopMap), 0) + 56);
-      return `<div class="melody-staff-wrap" style="position:relative;height:${wrapHeight}px;"><svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${question.clefLabel}・${measureCount}小節の旋律" style="overflow:visible;display:block;">${svg}</svg><div class="melody-answer-layer">${answerCells}</div></div>`;
+      const wrapHeight = Math.max(svgHeight + (compactLayout ? 38 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 48 : 56));
+      const widthStyle = compactLayout ? `width:${svgWidth}px;min-width:${svgWidth}px;` : "";
+      return `<div class="melody-staff-wrap" style="position:relative;height:${wrapHeight}px;${widthStyle}"><svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${question.clefLabel}・${measureCount}小節の旋律" style="overflow:visible;display:block;">${svg}</svg><div class="melody-answer-layer">${answerCells}</div></div>`;
     }
 
     function renderMelodyNameQuestion() {
@@ -6236,11 +6410,24 @@
       if (melodyQuestionCount) melodyQuestionCount.textContent = `${currentMelodyIndex + 1} / ${currentMelodyQuestions.length}`;
       if (melodyProgressBar) melodyProgressBar.style.width = `${(currentMelodyIndex / currentMelodyQuestions.length) * 100}%`;
       if (melodyScoreBadge) melodyScoreBadge.textContent = `正解 ${currentMelodyScore}`;
+      melodyBoard.scrollLeft = 0;
       melodyBoard.innerHTML = createMelodyNameStaffHtml(q);
+      melodyBoard.scrollLeft = 0;
       if (melodyFeedback) { melodyFeedback.classList.remove("show"); melodyFeedback.innerHTML = ""; }
       if (melodyCheckButton) melodyCheckButton.disabled = false;
       if (melodyNextButton) melodyNextButton.style.display = "none";
-      setTimeout(() => { const firstInput = document.getElementById("melodyAnswer0"); if (firstInput) firstInput.focus(); }, 0);
+      window.requestAnimationFrame(() => {
+        melodyBoard.scrollLeft = 0;
+        const firstInput = document.getElementById("melodyAnswer0");
+        if (firstInput) {
+          try {
+            firstInput.focus({ preventScroll: true });
+          } catch (error) {
+            firstInput.focus();
+          }
+        }
+        melodyBoard.scrollLeft = 0;
+      });
     }
 
     function isMelodyNameAnswerCorrect(inputText, correctName) {
@@ -8058,6 +8245,7 @@
 
     loadRhythmDifficultySetting();
     loadMelodyOptionSettings();
+    ensureRepeatSymbolAssets();
     setupEventListeners();
     loadSavedStudent();
 
