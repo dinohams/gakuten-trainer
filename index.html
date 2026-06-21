@@ -2859,14 +2859,17 @@
       }
 
       function rowBreakIndex(n) {
-        return n >= 8 ? Math.ceil(n / 2) : -1;
+        if (n <= 5) return -1;
+        if (n <= 8) return 4;
+        return 5;
       }
 
       function isBadRepeatPoint(n, index) {
-        return n >= 8 && index === rowBreakIndex(n);
+        const breakIndex = rowBreakIndex(n);
+        return breakIndex !== -1 && index === breakIndex;
       }
 
-      for (let n = 4; n <= 12; n++) {
+      for (let n = 4; n <= 10; n++) {
         const m = base(n);
         const rb = rowBreakIndex(n);
 
@@ -4928,9 +4931,14 @@
         });
       }
 
-      const rowBreaks = measures.length >= 8
-        ? [0, Math.ceil(measures.length / 2), measures.length]
-        : [0, measures.length];
+      let rowBreaks;
+      if (measures.length <= 5) {
+        rowBreaks = [0, measures.length];
+      } else if (measures.length <= 8) {
+        rowBreaks = [0, 4, measures.length];
+      } else {
+        rowBreaks = [0, 5, measures.length];
+      }
 
       const rowCount = rowBreaks.length - 1;
       const staffLeft = 32;
