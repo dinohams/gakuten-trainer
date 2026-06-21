@@ -7609,6 +7609,49 @@
       musicQuote.textContent = `“${quote.text}” ― ${quote.author}`;
     }
 
+    let noteNameKeyboardScrollTimers = [];
+
+    function scrollNoteNameQuestionForKeyboard() {
+      if (!noteAnswerInput || document.activeElement !== noteAnswerInput) return;
+      if (!quizScreen || !quizScreen.classList.contains("active")) return;
+      if (getBaseMode(currentMode || "") !== "noteName") return;
+
+      const answerRow = inputAnswerArea
+        ? inputAnswerArea.querySelector(".answer-input-row")
+        : null;
+      if (!displayBox || !answerRow) return;
+
+      const viewportHeight = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+      const displayRect = displayBox.getBoundingClientRect();
+      const answerRect = answerRow.getBoundingClientRect();
+      const topGap = 8;
+      const bottomGap = 12;
+
+      // まず譜面の上端を画面上部に合わせ、入力欄もキーボードの上に収まるよう微調整する。
+      let targetY = window.scrollY + displayRect.top - topGap;
+      const answerBottomFromDisplayTop = answerRect.bottom - displayRect.top;
+      const projectedAnswerBottom = topGap + answerBottomFromDisplayTop;
+
+      if (projectedAnswerBottom > viewportHeight - bottomGap) {
+        targetY += projectedAnswerBottom - (viewportHeight - bottomGap);
+      }
+
+      const maxScrollY = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
+      window.scrollTo({
+        top: Math.max(0, Math.min(targetY, maxScrollY)),
+        behavior: "smooth"
+      });
+    }
+
+    function scheduleNoteNameKeyboardScroll() {
+      noteNameKeyboardScrollTimers.forEach(timerId => window.clearTimeout(timerId));
+      noteNameKeyboardScrollTimers = [80, 240, 520].map(delay =>
+        window.setTimeout(scrollNoteNameQuestionForKeyboard, delay)
+      );
+    }
+
     function setupEventListeners() {
       if (studentNameInput) {
         studentNameInput.addEventListener("keydown", event => {
@@ -7619,6 +7662,8 @@
       }
 
       if (noteAnswerInput) {
+        noteAnswerInput.addEventListener("focus", scheduleNoteNameKeyboardScroll);
+
         noteAnswerInput.addEventListener("keydown", event => {
           if (event.key === "Enter") {
             event.preventDefault();
@@ -7626,6 +7671,14 @@
             if (!answered) {
               answerTypedQuestion();
             }
+          }
+        });
+      }
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", () => {
+          if (document.activeElement === noteAnswerInput) {
+            scheduleNoteNameKeyboardScroll();
           }
         });
       }
