@@ -2236,7 +2236,7 @@
       display: none;
     }
 
-    /* スマホ縦向きの旋律音名問題。1小節分を画面内に収めつつ、2小節目は横スクロールで確認する。 */
+    /* スマホ縦向きの旋律音名問題。1小節ずつ上下2段に分けて表示し、各小節を画面内に収める。 */
     @media (max-width: 620px) and (orientation: portrait) {
       body.melody-mobile-compact {
         margin: 0;
@@ -2306,21 +2306,24 @@
       body.melody-mobile-compact .melody-board {
         padding: 4px 2px 6px;
         border-radius: 14px;
-        overflow-x: auto;
-        overflow-y: hidden;
+        overflow-x: hidden;
+        overflow-y: visible;
         -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
-        scroll-behavior: smooth;
+      }
+
+      body.melody-mobile-compact .melody-staff-wrap {
+        width: 100%;
+        min-width: 0;
       }
 
       body.melody-mobile-compact .melody-answer-cell {
-        width: 50px;
+        width: 44px;
       }
 
       body.melody-mobile-compact .melody-answer-input {
-        border-radius: 8px;
-        padding: 6px 1px;
-        font-size: 12px;
+        border-radius: 9px;
+        padding: 5px 2px;
+        font-size: 16px;
       }
 
       body.melody-mobile-compact .melody-correct-label {
@@ -6096,8 +6099,7 @@
     }
 
 
-    async function startMelodyNamePractice() {
-      await ensureRepeatSymbolAssets();
+    function startMelodyNamePractice() {
       currentMode = "melodyName";
       currentQuestions = buildMelodyQuestionSet(selectedQuestionCount);
       if (currentQuestions.length === 0) {
@@ -6248,10 +6250,10 @@
       return html;
     }
 
-    function createMelodyLedgerLines(x, y, staffTop, lineGap = 20) {
+    function createMelodyLedgerLines(x, y, staffTop) {
       const lines = [];
-      const staffBottom = staffTop + lineGap * 4;
-      const ledgerGap = lineGap;
+      const staffBottom = staffTop + 80;
+      const ledgerGap = 20;
 
       if (y > staffBottom + 1) {
         for (let ledgerY = staffBottom + ledgerGap; ledgerY <= y + 1; ledgerY += ledgerGap) {
@@ -6274,14 +6276,14 @@
 
       if (assetPath) {
         if (isBass) {
-          const width = compactLayout ? 54 : 72;
-          const height = compactLayout ? 72 : 96;
-          return `<image aria-label="ヘ音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 8 : 14)}" y="${staffTop + (compactLayout ? -2 : -5)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+          const width = compactLayout ? 44 : 72;
+          const height = compactLayout ? 60 : 96;
+          return `<image aria-label="ヘ音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 8 : 14)}" y="${staffTop + (compactLayout ? 1 : -5)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
         }
 
-        const width = compactLayout ? 58 : 78;
-        const height = compactLayout ? 118 : 154;
-        return `<image aria-label="ト音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 4 : 10)}" y="${staffTop - (compactLayout ? 24 : 34)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+        const width = compactLayout ? 46 : 78;
+        const height = compactLayout ? 92 : 154;
+        return `<image aria-label="ト音記号" href="${assetPath}" x="${staffLeft + (compactLayout ? 2 : 10)}" y="${staffTop - (compactLayout ? 18 : 34)}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
       return isBass
@@ -6294,28 +6296,30 @@
       const measureCount = question.measureCount || 2;
       const compactLayout = Boolean(window.matchMedia && window.matchMedia("(max-width: 620px) and (orientation: portrait)").matches);
       const boardViewportWidth = compactLayout
-        ? Math.max(300, (melodyBoard?.clientWidth || window.innerWidth || 360) - 8)
+        ? Math.max(300, (melodyBoard?.clientWidth || window.innerWidth || 360) - 6)
         : 0;
 
-      const rowCount = measureCount === 4 ? 2 : 1;
-      const measuresPerRow = compactLayout ? measureCount : 2;
-      const lineGap = compactLayout ? 16 : 20;
-      const rowHeight = compactLayout ? 218 : 250;
-      const melodyStaffTopOffset = compactLayout ? 66 : 86;
-      const staffLeft = compactLayout ? 10 : 52;
-      const clefWidth = compactLayout ? 70 : 104;
+      const measuresPerRow = compactLayout ? 1 : 2;
+      const rowCount = compactLayout
+        ? Math.max(1, Math.ceil(measureCount / measuresPerRow))
+        : (measureCount === 4 ? 2 : 1);
+      const lineGap = compactLayout ? 14 : 20;
+      const rowHeight = compactLayout ? 166 : 250;
+      const melodyStaffTopOffset = compactLayout ? 48 : 86;
+      const staffLeft = compactLayout ? 8 : 52;
+      const clefWidth = compactLayout ? 52 : 104;
       const musicLeft = staffLeft + clefWidth;
-      const mobileRightPadding = 6;
+      const mobileRightPadding = 4;
       const measureWidth = compactLayout
-        ? Math.max(220, boardViewportWidth - musicLeft - mobileRightPadding)
+        ? Math.max(186, boardViewportWidth - musicLeft - mobileRightPadding)
         : (1460 - musicLeft) / 2;
       const staffRight = compactLayout
-        ? musicLeft + measureCount * measureWidth
+        ? musicLeft + measuresPerRow * measureWidth
         : 1460;
       const svgWidth = compactLayout
         ? Math.ceil(staffRight + mobileRightPadding)
         : 1500;
-      const svgHeight = rowCount * rowHeight + 20;
+      const svgHeight = rowCount * rowHeight + (compactLayout ? 8 : 20);
       const notePositions = {};
       let svg = "";
 
@@ -6346,16 +6350,16 @@
         const rowY = row * rowHeight;
         const staffTop = rowY + melodyStaffTopOffset;
         const measureX = musicLeft + localMeasureIndex * measureWidth;
-        const measureInnerLeft = measureX + (compactLayout ? 22 : 38);
-        const measureInnerRight = measureX + measureWidth - (compactLayout ? 18 : 34);
+        const measureInnerLeft = measureX + (compactLayout ? 20 : 38);
+        const measureInnerRight = measureX + measureWidth - (compactLayout ? 14 : 34);
         const measureInnerWidth = measureInnerRight - measureInnerLeft;
         const x = measureInnerLeft + (note.slot / 16) * measureInnerWidth;
-        const yScale = compactLayout ? 0.8 : 1;
+        const yScale = compactLayout ? 0.72 : 1;
         const y = staffTop + (note.y - 42) * yScale;
         notePositions[note.index] = { x, y, row };
         const accidental = note.accidental === "sharp" ? "♯" : note.accidental === "flat" ? "♭" : note.accidental === "natural" ? "♮" : "";
-        const accidentalHtml = accidental ? `<text x="${x - (compactLayout ? 29 : 38)}" y="${y + 1}" font-size="${compactLayout ? 27 : 34}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">${accidental}</text>` : "";
-        svg += `${createMelodyLedgerLines(x, y, staffTop, lineGap)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index))}`;
+        const accidentalHtml = accidental ? `<text x="${x - (compactLayout ? 24 : 38)}" y="${y + 1}" font-size="${compactLayout ? 22 : 34}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">${accidental}</text>` : "";
+        svg += `${createMelodyLedgerLines(x, y, staffTop)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index))}`;
       });
       svg += createMelodyBeamHtml(notes, notePositions);
 
@@ -6366,37 +6370,19 @@
           .filter(pos => pos && pos.row === row);
         const lowestNoteY = rowNotes.length > 0 ? Math.max(...rowNotes.map(pos => pos.y)) : row * rowHeight + 120;
         rowAnswerTopMap[row] = Math.max(
-          row * rowHeight + melodyStaffTopOffset + (compactLayout ? 102 : 124),
-          lowestNoteY + (compactLayout ? 37 : 46)
+          row * rowHeight + melodyStaffTopOffset + (compactLayout ? 82 : 124),
+          lowestNoteY + (compactLayout ? 28 : 46)
         );
-      }
-
-      let compactAnswerWidth = 50;
-      if (compactLayout) {
-        const gaps = [];
-        for (let measureIndex = 0; measureIndex < measureCount; measureIndex++) {
-          const measurePositions = notes
-            .filter(note => note.measureIndex === measureIndex)
-            .map(note => notePositions[note.index]?.x)
-            .filter(Number.isFinite)
-            .sort((a, b) => a - b);
-          for (let index = 1; index < measurePositions.length; index++) {
-            gaps.push(measurePositions[index] - measurePositions[index - 1]);
-          }
-        }
-        const minimumGap = gaps.length > 0 ? Math.min(...gaps) : 50;
-        compactAnswerWidth = Math.max(30, Math.min(46, Math.floor(minimumGap - 3)));
       }
 
       const answerCells = notes.map((note, index) => {
         const pos = notePositions[note.index];
         const leftPercent = pos ? (pos.x / svgWidth) * 100 : 0;
         const topPx = pos ? rowAnswerTopMap[pos.row] : 0;
-        const widthStyle = compactLayout ? `width:${compactAnswerWidth}px;` : "";
-        return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px;${widthStyle}"><input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" /><div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
+        return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px"><input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" /><div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
       }).join("");
-      const wrapHeight = Math.max(svgHeight + (compactLayout ? 38 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 48 : 56));
-      const widthStyle = compactLayout ? `width:${svgWidth}px;min-width:${svgWidth}px;` : "";
+      const wrapHeight = Math.max(svgHeight + (compactLayout ? 22 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 42 : 56));
+      const widthStyle = compactLayout ? 'width:100%;min-width:0;' : "";
       return `<div class="melody-staff-wrap" style="position:relative;height:${wrapHeight}px;${widthStyle}"><svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${question.clefLabel}・${measureCount}小節の旋律" style="overflow:visible;display:block;">${svg}</svg><div class="melody-answer-layer">${answerCells}</div></div>`;
     }
 
@@ -6411,22 +6397,16 @@
       if (melodyProgressBar) melodyProgressBar.style.width = `${(currentMelodyIndex / currentMelodyQuestions.length) * 100}%`;
       if (melodyScoreBadge) melodyScoreBadge.textContent = `正解 ${currentMelodyScore}`;
       melodyBoard.scrollLeft = 0;
+      melodyBoard.scrollTop = 0;
       melodyBoard.innerHTML = createMelodyNameStaffHtml(q);
       melodyBoard.scrollLeft = 0;
+      melodyBoard.scrollTop = 0;
       if (melodyFeedback) { melodyFeedback.classList.remove("show"); melodyFeedback.innerHTML = ""; }
       if (melodyCheckButton) melodyCheckButton.disabled = false;
       if (melodyNextButton) melodyNextButton.style.display = "none";
       window.requestAnimationFrame(() => {
         melodyBoard.scrollLeft = 0;
-        const firstInput = document.getElementById("melodyAnswer0");
-        if (firstInput) {
-          try {
-            firstInput.focus({ preventScroll: true });
-          } catch (error) {
-            firstInput.focus();
-          }
-        }
-        melodyBoard.scrollLeft = 0;
+        melodyBoard.scrollTop = 0;
       });
     }
 
