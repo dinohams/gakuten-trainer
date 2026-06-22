@@ -7958,12 +7958,34 @@
         lastX: event.clientX,
         lastY: event.clientY,
         moved: false,
+        dragActivated: false,
+        longPressTimer: null,
         symbol: tool.symbol,
         toolType: tool.type
       };
+
+      activeRhythmPointerDrag.longPressTimer = window.setTimeout(() => {
+        activateRhythmItemLongPressDrag();
+      }, 260);
+
       document.addEventListener("pointermove", handleRhythmItemPointerMove);
       document.addEventListener("pointerup", handleRhythmItemPointerUp);
       document.addEventListener("pointercancel", cancelRhythmItemPointerDrag);
+    }
+
+    function activateRhythmItemLongPressDrag() {
+      const drag = activeRhythmPointerDrag;
+      if (!drag || drag.dragActivated) return;
+
+      drag.dragActivated = true;
+      drag.longPressTimer = null;
+      setRhythmDraggedItemVisual(true);
+      createRhythmDragGhost(drag.toolType, drag.lastX, drag.lastY);
+
+      const target = getRhythmMeasureSlotFromPoint(drag.lastX, drag.lastY);
+      if (target) {
+        showRhythmPlacementPreview(target.measureIndex, target.slotIndex, drag.toolType);
+      }
     }
 
     function handleRhythmItemPointerMove(event) {
@@ -7975,11 +7997,18 @@
 
       if (!activeRhythmPointerDrag.moved && Math.hypot(dx, dy) >= 6) {
         activeRhythmPointerDrag.moved = true;
-        setRhythmDraggedItemVisual(true);
-        createRhythmDragGhost(activeRhythmPointerDrag.toolType, event.clientX, event.clientY);
+        if (activeRhythmPointerDrag.longPressTimer) {
+          window.clearTimeout(activeRhythmPointerDrag.longPressTimer);
+          activeRhythmPointerDrag.longPressTimer = null;
+        }
+        if (!activeRhythmPointerDrag.dragActivated) {
+          activeRhythmPointerDrag.dragActivated = true;
+          setRhythmDraggedItemVisual(true);
+          createRhythmDragGhost(activeRhythmPointerDrag.toolType, event.clientX, event.clientY);
+        }
       }
 
-      if (activeRhythmPointerDrag.moved) {
+      if (activeRhythmPointerDrag.dragActivated) {
         event.preventDefault();
         moveRhythmDragGhost(event.clientX, event.clientY);
         updateRhythmDragAutoScroll(event.clientX, event.clientY);
@@ -7997,10 +8026,12 @@
       const drag = activeRhythmPointerDrag;
       cleanupRhythmItemPointerDrag();
 
-      if (!drag.moved) {
+      if (!drag.dragActivated) {
         removeRhythmItem(null, drag.measureIndex, drag.itemId);
         return;
       }
+
+      if (!drag.moved) return;
 
       const target = getRhythmMeasureSlotFromPoint(event.clientX, event.clientY);
       if (target) {
@@ -8013,6 +8044,9 @@
     }
 
     function cleanupRhythmItemPointerDrag() {
+      if (activeRhythmPointerDrag?.longPressTimer) {
+        window.clearTimeout(activeRhythmPointerDrag.longPressTimer);
+      }
       setRhythmDraggedItemVisual(false);
       activeRhythmPointerDrag = null;
       removeRhythmDragGhost();
