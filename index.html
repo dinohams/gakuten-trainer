@@ -5531,6 +5531,11 @@
 
       if (baseMode === "noteName") {
         displayBox.innerHTML = createStaffHtml(q.display, { showReferenceNote: noteNameHint1Used });
+        ensureRepeatSymbolAssets().then(() => {
+          if (getBaseMode(currentMode || "") === "noteName" && currentQuestions[currentIndex] === q) {
+            displayBox.innerHTML = createStaffHtml(q.display, { showReferenceNote: noteNameHint1Used });
+          }
+        });
         return;
       }
 
@@ -5611,10 +5616,7 @@
           : "";
 
       const referenceNoteHtml = options.showReferenceNote ? createReferenceNoteHtml(isBass) : "";
-
-      const clef = isBass
-        ? `<text x="0" y="0" font-size="86" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" transform="translate(85, 100) scale(0.9, 1)">𝄢</text>`
-        : `<text x="80" y="126" font-size="120" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
+      const clef = createNoteNameClefHtml(clefName);
 
       return `
         <div class="staff-wrap" aria-label="${positionLabel}">
@@ -5650,6 +5652,33 @@
           <text x="${refX + 34}" y="${refY + 6}" font-size="24" font-family="system-ui, sans-serif" font-weight="900" fill="#3d55c8">ド</text>
         </g>
       `;
+    }
+
+
+    function createNoteNameClefHtml(clefName) {
+      const isBass = clefName === "ヘ音記号";
+      const assetPath = isBass ? repeatSymbolAssetPaths.heon : repeatSymbolAssetPaths.toon;
+      const compactLayout = Boolean(window.matchMedia && window.matchMedia("(max-width: 620px) and (orientation: portrait)").matches);
+
+      if (assetPath) {
+        if (isBass) {
+          const width = compactLayout ? 51 : 104;
+          const height = compactLayout ? 71 : 139;
+          const x = compactLayout ? 82 : 90;
+          const y = compactLayout ? 50 : 5;
+          return `<image aria-label="ヘ音記号" href="${assetPath}" x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+        }
+
+        const width = compactLayout ? 36 : 78;
+        const height = compactLayout ? 72 : 154;
+        const x = compactLayout ? 88 : 92;
+        const y = compactLayout ? 28 : 2;
+        return `<image aria-label="ト音記号" href="${assetPath}" x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />`;
+      }
+
+      return isBass
+        ? `<text x="0" y="0" font-size="${compactLayout ? 60 : 86}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" transform="translate(${compactLayout ? 91 : 85}, ${compactLayout ? 100 : 100}) scale(0.9, 1)">𝄢</text>`
+        : `<text x="${compactLayout ? 86 : 80}" y="${compactLayout ? 118 : 126}" font-size="${compactLayout ? 82 : 120}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
     }
 
     function createNoteValueHtml(type) {
