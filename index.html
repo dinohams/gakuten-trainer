@@ -1251,6 +1251,21 @@
       color: var(--text);
     }
 
+    textarea.melody-answer-input {
+      display: block;
+      min-height: 36px;
+      height: 36px;
+      max-height: 72px;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      resize: none;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+      font-family: inherit;
+      line-height: 1.15;
+    }
+
     .melody-answer-input.correct {
       border-color: var(--correct);
       background: rgba(31, 157, 85, 0.10);
@@ -4180,6 +4195,7 @@
     const scoreBadge = document.getElementById("scoreBadge");
     const categoryLabel = document.getElementById("categoryLabel");
     const questionText = document.getElementById("questionText");
+    const questionTextRow = document.getElementById("questionTextRow");
     const displayBox = document.getElementById("displayBox");
     const choicesEl = document.getElementById("choices");
     const feedback = document.getElementById("feedback");
@@ -5401,10 +5417,11 @@
       progressBar.style.width = `${(currentIndex / currentQuestions.length) * 100}%`;
       scoreBadge.textContent = `正解 ${score}`;
       categoryLabel.textContent = getModeLabel(currentMode);
+      const baseMode = getBaseMode(currentMode);
       questionText.textContent = q.question;
+      if (questionTextRow) questionTextRow.style.display = baseMode === "repeatOrder" ? "none" : "";
       renderDisplay(q);
 
-      const baseMode = getBaseMode(currentMode);
       if (quizScreen) quizScreen.classList.toggle("quiz-compact-question", baseMode === "noteName" || baseMode === "noteValue");
       if (quizQuestionCard) {
         quizQuestionCard.classList.toggle("note-name-two-column", baseMode === "noteName");
@@ -6885,9 +6902,7 @@
         const pos = notePositions[note.index];
         const leftPercent = pos ? (pos.x / svgWidth) * 100 : 0;
         const topPx = pos ? rowAnswerTopMap[pos.row] : 0;
-        const answerField = compactLayout
-          ? `<textarea class="melody-answer-input" id="melodyAnswer${index}" rows="1" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="音名" aria-label="${index + 1}番目の音名" oninput="handleMelodyAnswerInput(this)"></textarea>`
-          : `<input class="melody-answer-input" id="melodyAnswer${index}" type="text" autocomplete="off" placeholder="音名" aria-label="${index + 1}番目の音名" oninput="melodyBlankCheckPressCount = 0" />`;
+        const answerField = `<textarea class="melody-answer-input" id="melodyAnswer${index}" rows="1" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="音名" aria-label="${index + 1}番目の音名" oninput="handleMelodyAnswerInput(this)"></textarea>`;
         return `<div class="melody-answer-cell" style="left:${leftPercent}%;top:${topPx}px">${answerField}<div class="melody-correct-label" id="melodyCorrect${index}"></div></div>`;
       }).join("");
       const wrapHeight = Math.max(svgHeight + (compactLayout ? 16 : 56), Math.max(...Object.values(rowAnswerTopMap), 0) + (compactLayout ? 32 : 56));
@@ -6897,10 +6912,13 @@
 
     function resizeMelodyAnswerField(field) {
       if (!field || field.tagName !== "TEXTAREA") return;
-      field.style.height = "24px";
-      const nextHeight = Math.min(72, Math.max(24, field.scrollHeight));
+      const compactLayout = Boolean(window.matchMedia && window.matchMedia("(max-width: 620px) and (orientation: portrait)").matches);
+      const minHeight = compactLayout ? 24 : 36;
+      const maxHeight = 72;
+      field.style.height = `${minHeight}px`;
+      const nextHeight = Math.min(maxHeight, Math.max(minHeight, field.scrollHeight));
       field.style.height = `${nextHeight}px`;
-      field.style.overflowY = field.scrollHeight > 72 ? "auto" : "hidden";
+      field.style.overflowY = field.scrollHeight > maxHeight ? "auto" : "hidden";
     }
 
     function handleMelodyAnswerInput(field) {
