@@ -461,6 +461,15 @@
     }
 
 
+    .count-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      background: #eef0f7;
+      color: var(--muted);
+      border-color: var(--border);
+    }
+
+
     .rhythm-difficulty-note {
       margin: 10px 0 0;
       color: var(--muted);
@@ -1627,14 +1636,11 @@
       background: rgba(79, 109, 245, 0.08);
     }
 
-    .rhythm-slot.placement-preview {
-      background: rgba(79, 109, 245, 0.18) !important;
-      box-shadow: inset 0 0 0 2px rgba(79, 109, 245, 0.34);
-    }
-
+    .rhythm-slot.placement-preview,
     .rhythm-slot.placement-preview-overflow {
-      background: rgba(183, 121, 31, 0.22) !important;
-      box-shadow: inset 0 0 0 2px rgba(183, 121, 31, 0.42);
+      z-index: 8;
+      background: rgba(79, 109, 245, 0.26) !important;
+      box-shadow: inset 0 0 0 2px rgba(79, 109, 245, 0.72) !important;
     }
 
     .rhythm-slot.rhythm-error-empty {
@@ -1650,6 +1656,26 @@
     .rhythm-slot.rhythm-error-overflow {
       background: rgba(126, 74, 201, 0.20) !important;
       box-shadow: inset 0 0 0 2px rgba(126, 74, 201, 0.42);
+    }
+
+
+    /* PC版もスマホ版と同じく、五線周辺だけを配置マスにし、青は半透明で判定色より優先する。 */
+    @media (min-width: 621px) {
+      .rhythm-slots {
+        top: 38px;
+        height: 96px;
+      }
+
+      .rhythm-measure-result {
+        z-index: 20;
+      }
+
+      .rhythm-slot.placement-preview,
+      .rhythm-slot.placement-preview-overflow {
+        z-index: 8;
+        background: rgba(79, 109, 245, 0.26) !important;
+        box-shadow: inset 0 0 0 2px rgba(79, 109, 245, 0.72) !important;
+      }
     }
 
     .rhythm-item.rhythm-item-error .rhythm-glyph {
@@ -2961,9 +2987,9 @@
               <p id="rhythmDifficultyNote" class="rhythm-difficulty-note">普通：基本的な音符・休符で4小節のリズムを作ります。</p>
             </div>
             <div class="count-buttons">
-              <button id="rhythmDifficultyEasy" class="count-btn" onclick="setRhythmDifficulty('easy')">簡単</button>
-              <button id="rhythmDifficultyNormal" class="count-btn active" onclick="setRhythmDifficulty('normal')">普通</button>
-              <button id="rhythmDifficultyHard" class="count-btn" onclick="setRhythmDifficulty('hard')">難しい</button>
+              <button id="rhythmDifficultyEasy" class="count-btn active" onclick="setRhythmDifficulty('easy')">簡単</button>
+              <button id="rhythmDifficultyNormal" class="count-btn" onclick="setRhythmDifficulty('normal')" disabled aria-disabled="true" title="現在は選択できません">普通</button>
+              <button id="rhythmDifficultyHard" class="count-btn" onclick="setRhythmDifficulty('hard')" disabled aria-disabled="true" title="現在は選択できません">難しい</button>
             </div>
           </div>
         </div>
@@ -5162,7 +5188,7 @@
     }
 
     function getRhythmDifficultyNote(difficulty = selectedRhythmDifficulty) {
-      if (difficulty === "easy") return "簡単：判定後に空き・重なり・はみ出しを色で確認できます。";
+      if (difficulty === "easy") return "簡単：空きは判定文で、重なり・はみ出しは色でも確認できます。";
       if (difficulty === "hard") return "難しい：16分音符・付点8分音符など、細かい音価も使えます。";
       return "普通：基本的な音符・休符で4小節のリズムを作ります。";
     }
@@ -5175,7 +5201,12 @@
       };
 
       Object.entries(buttons).forEach(([difficulty, button]) => {
-        if (button) button.classList.toggle("active", selectedRhythmDifficulty === difficulty);
+        if (!button) return;
+        const isAvailable = difficulty === "easy";
+        button.disabled = !isAvailable;
+        button.setAttribute("aria-disabled", String(!isAvailable));
+        button.title = isAvailable ? "" : "現在は選択できません";
+        button.classList.toggle("active", selectedRhythmDifficulty === difficulty);
       });
 
       if (rhythmDifficultyNote) {
@@ -5188,7 +5219,7 @@
     }
 
     function setRhythmDifficulty(difficulty) {
-      if (!["easy", "normal", "hard"].includes(difficulty)) return;
+      if (difficulty !== "easy") return;
       if (selectedRhythmDifficulty === difficulty) return;
 
       const shouldReset = hasAnyRhythmItems();
@@ -5211,8 +5242,8 @@
     }
 
     function loadRhythmDifficultySetting() {
-      const savedDifficulty = safeStorage.getItem("musicTheoryRhythmDifficulty");
-      selectedRhythmDifficulty = ["easy", "normal", "hard"].includes(savedDifficulty) ? savedDifficulty : "normal";
+      selectedRhythmDifficulty = "easy";
+      safeStorage.setItem("musicTheoryRhythmDifficulty", selectedRhythmDifficulty);
       renderRhythmDifficultyButtons();
     }
 
@@ -7105,7 +7136,7 @@
       { type: "dottedEighthRest", label: "付点8分休符", symbol: "𝄾.", beats: 0.75, slots: 3, rest: true, dotted: true, base: "eighthRest", difficulty: "hard" }
     ];
 
-    let selectedRhythmDifficulty = "normal";
+    let selectedRhythmDifficulty = "easy";
     let rhythmMeasures = createEmptyRhythmMeasures();
     let selectedRhythmToolType = null;
     let rhythmItemIdCounter = 1;
@@ -7177,13 +7208,9 @@
     }
 
     function finalizeRhythmEdit() {
-      if (isRhythmMobileInteractionMode()) {
-        lastRhythmResults = analyzeRhythmMeasures();
-        rhythmResultsAreStale = false;
-        updateRhythmAutoCheckSummary(lastRhythmResults);
-      } else {
-        markRhythmResultsStale();
-      }
+      lastRhythmResults = analyzeRhythmMeasures();
+      rhythmResultsAreStale = false;
+      updateRhythmAutoCheckSummary(lastRhythmResults);
       saveRhythmDraft();
       renderRhythmCreator();
     }
@@ -8179,7 +8206,6 @@
           return Math.max(slotStart, item.startSlot) < Math.min(slotEnd, itemEndInsideMeasure);
         });
 
-        if (hasEmpty && !isRhythmMobileInteractionMode()) classes.push("rhythm-error-empty");
         if (hasOverlap) classes.push("rhythm-error-overlap");
         if (hasOverflowHere) classes.push("rhythm-error-overflow");
       }
