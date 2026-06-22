@@ -1314,6 +1314,14 @@
       display: block;
     }
 
+    /* リズム創作画面では、長押し時の文字選択・コピー用メニューを出さない。 */
+    #rhythmScreen,
+    #rhythmScreen * {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
     .rhythm-board {
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -4211,6 +4219,12 @@
     const rhythmDifficultyNormal = document.getElementById("rhythmDifficultyNormal");
     const rhythmDifficultyHard = document.getElementById("rhythmDifficultyHard");
     const rhythmDifficultyNote = document.getElementById("rhythmDifficultyNote");
+
+    if (rhythmScreen) {
+      rhythmScreen.addEventListener("selectstart", event => event.preventDefault());
+      rhythmScreen.addEventListener("contextmenu", event => event.preventDefault());
+    }
+
     const melodyAccidentalButtons = {
       with: document.getElementById("melodyAccidentalWith"),
       none: document.getElementById("melodyAccidentalNone")
@@ -7284,7 +7298,7 @@
           type="button"
           draggable="true"
           ondragstart="handleRhythmToolDragStart(event, '${tool.type}')"
-          ondragend="activeRhythmPaletteDragType = null; clearRhythmPlacementPreview();"
+          ondragend="handleRhythmToolDragEnd(event)"
           onpointerdown="handleRhythmToolPointerDown(event, '${tool.type}')"
           onclick="handleRhythmToolClick(event, '${tool.type}')"
         >
@@ -7312,6 +7326,15 @@
       renderRhythmTools();
     }
 
+    function clearRhythmToolSelectionForDrag() {
+      if (!selectedRhythmToolType) return;
+      selectedRhythmToolType = null;
+      updateRhythmPlacementModeClass();
+      document.querySelectorAll(".rhythm-tool.selected").forEach(toolElement => {
+        toolElement.classList.remove("selected");
+      });
+    }
+
     function getRhythmTool(type) {
       return rhythmTools.find(tool => tool.type === type);
     }
@@ -7321,7 +7344,10 @@
     }
 
     function handleRhythmToolDragStart(event, type) {
+      clearRhythmToolSelectionForDrag();
       activeRhythmPaletteDragType = type;
+      if (event.currentTarget) event.currentTarget.classList.add("dragging");
+      suppressNextRhythmToolClick = true;
       const tool = getRhythmTool(type);
       event.dataTransfer.setData("text/plain", type);
       event.dataTransfer.setData("application/json", JSON.stringify({ source: "palette", type }));
@@ -7337,6 +7363,15 @@
         event.dataTransfer.setDragImage(ghost, 24, 24);
         window.setTimeout(() => ghost.remove(), 0);
       }
+    }
+
+    function handleRhythmToolDragEnd(event) {
+      if (event.currentTarget) event.currentTarget.classList.remove("dragging");
+      activeRhythmPaletteDragType = null;
+      clearRhythmPlacementPreview();
+      window.setTimeout(() => {
+        suppressNextRhythmToolClick = false;
+      }, 350);
     }
 
     function handleRhythmToolPointerDown(event, type) {
@@ -7370,6 +7405,7 @@
 
       if (!drag.dragging && distance >= 7) {
         drag.dragging = true;
+        clearRhythmToolSelectionForDrag();
         suppressNextRhythmToolClick = true;
         activeRhythmPaletteDragType = drag.type;
         if (drag.toolElement) drag.toolElement.classList.add("dragging");
