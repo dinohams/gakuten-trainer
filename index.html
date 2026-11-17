@@ -6648,7 +6648,8 @@
 
       notes.forEach((note, index) => {
         const measureX = musicLeft + note.measureIndex * measureWidth;
-        const measureInnerLeft = measureX + 18;
+        // 小節頭の臨時記号が直前の小節線をまたがないよう、冒頭に十分な余白を確保。
+        const measureInnerLeft = measureX + 56;
         const measureInnerRight = measureX + measureWidth - 14;
         const x = measureInnerLeft + (note.slot / 16) * (measureInnerRight - measureInnerLeft);
         const y = staffTop + (note.y - 42) * 0.56;
@@ -7012,11 +7013,12 @@
     function createTeacherMelodyPrintAccidentalHtml(accidentalType, x, y) {
       if (!accidentalType || accidentalType === "none") return "";
 
+      // 先生用プレビュー／PDF共通。符頭のすぐ左に置きつつ、音高別の縦位置を補正する。
       const config = accidentalType === "sharp"
-        ? { glyph: "♯", offsetX: 40, offsetY: -1, fontSize: 34, label: "シャープ" }
+        ? { glyph: "♯", offsetX: 32, offsetY: 3, fontSize: 34, label: "シャープ" }
         : accidentalType === "flat"
-          ? { glyph: "♭", offsetX: 46, offsetY: -12, fontSize: 42, label: "フラット" }
-          : { glyph: "♮", offsetX: 39, offsetY: -3, fontSize: 35, label: "ナチュラル" };
+          ? { glyph: "♭", offsetX: 38, offsetY: 5, fontSize: 42, label: "フラット" }
+          : { glyph: "♮", offsetX: 31, offsetY: -3, fontSize: 35, label: "ナチュラル" };
 
       return `<text aria-label="${config.label}" x="${x - config.offsetX}" y="${y + config.offsetY}" font-size="${config.fontSize}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" font-weight="700" fill="#202436" dominant-baseline="middle" text-rendering="geometricPrecision">${config.glyph}</text>`;
     }
@@ -7052,7 +7054,8 @@
 
       notes.forEach((note, index) => {
         const measureX = musicLeft + note.measureIndex * measureWidth;
-        const measureInnerLeft = measureX + 18;
+        // 小節頭の臨時記号が直前の小節線をまたがないよう、冒頭に十分な余白を確保。
+        const measureInnerLeft = measureX + 56;
         const measureInnerRight = measureX + measureWidth - 14;
         const x = measureInnerLeft + (note.slot / 16) * (measureInnerRight - measureInnerLeft);
         const y = staffTop + (note.y - 42) * 0.56;
