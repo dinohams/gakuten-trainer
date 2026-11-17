@@ -7017,7 +7017,7 @@
       const config = accidentalType === "sharp"
         ? { glyph: "♯", offsetX: 32, offsetY: 3, fontSize: 34, label: "シャープ" }
         : accidentalType === "flat"
-          ? { glyph: "♭", offsetX: 38, offsetY: 5, fontSize: 42, label: "フラット" }
+          ? { glyph: "♭", offsetX: 41, offsetY: 0, fontSize: 38, label: "フラット" }
           : { glyph: "♮", offsetX: 31, offsetY: -3, fontSize: 35, label: "ナチュラル" };
 
       return `<text aria-label="${config.label}" x="${x - config.offsetX}" y="${y + config.offsetY}" font-size="${config.fontSize}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" font-weight="700" fill="#202436" dominant-baseline="middle" text-rendering="geometricPrecision">${config.glyph}</text>`;
