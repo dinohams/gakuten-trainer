@@ -529,6 +529,18 @@
       outline: none;
     }
 
+    /* 音名の未開放3モードは表示のみ。生徒用の既存デザインは変更しない。 */
+    .mode-card.mode-card-disabled,
+    .mode-card.mode-card-disabled:hover,
+    .mode-card.mode-card-disabled:focus-visible {
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      border-color: var(--border);
+      outline: none;
+    }
+
     .mode-card h2 {
       margin: 0 0 10px;
       font-size: 22px;
@@ -2711,6 +2723,1071 @@
     }
 
 
+    /* PC版限定：先生用本番テスト作成画面。 */
+    .teacher-test-placeholder {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      background: linear-gradient(180deg, #ffffff, #fafbff);
+    }
+
+    .teacher-test-placeholder h3 {
+      margin: 0 0 12px;
+      color: var(--primary-dark);
+    }
+
+    .teacher-test-form-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(180px, 0.8fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .teacher-test-field {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .teacher-test-field-wide {
+      grid-column: span 2;
+    }
+
+    .teacher-test-input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 13px;
+      background: #fff;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .teacher-test-input:focus {
+      border-color: var(--primary);
+      outline: 3px solid rgba(79, 109, 245, 0.14);
+    }
+
+    .teacher-test-basic-preview {
+      margin-top: 18px;
+      border: 1px dashed rgba(79, 109, 245, 0.42);
+      border-radius: 18px;
+      padding: 18px 20px;
+      background: #fff;
+    }
+
+    .teacher-test-preview-title {
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 25px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .teacher-test-preview-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .teacher-test-section-title {
+      margin: 24px 0 0;
+      color: var(--primary-dark);
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .teacher-test-outline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .teacher-test-outline-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+      font-weight: 800;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+
+    .teacher-test-editor-section {
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+      padding-top: 22px;
+    }
+
+    .teacher-test-editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .teacher-test-editor-header h3 {
+      margin: 0;
+    }
+
+    .teacher-note-example-label {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .teacher-note-example-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .teacher-note-example-card {
+      border-color: rgba(79, 109, 245, 0.34);
+      background: #fafbff;
+    }
+
+    .teacher-note-question-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      align-items: start;
+    }
+
+    .teacher-note-question-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 6px 6px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(19, 35, 85, 0.04);
+    }
+
+    .teacher-note-question-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .teacher-note-change-btn {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 6px;
+      background: #f7f8fc;
+      color: var(--primary-dark);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 900;
+      white-space: nowrap;
+      line-height: 1.15;
+    }
+
+    .teacher-note-change-btn:hover,
+    .teacher-note-change-btn:focus-visible {
+      border-color: var(--primary);
+      background: var(--soft);
+      outline: none;
+    }
+
+    .teacher-note-staff {
+      overflow: hidden;
+      border: 1px solid #e9edf8;
+      border-radius: 9px;
+      background: #fff;
+      padding: 4px 5px 3px;
+    }
+
+    .teacher-note-staff .staff-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-note-staff .staff-svg {
+      width: 100%;
+      height: 62px;
+    }
+
+    .teacher-note-staff .staff-label {
+      margin-top: 1px;
+      font-size: 9px;
+      line-height: 1.15;
+    }
+
+    .teacher-note-answer {
+      margin-top: 4px;
+      color: var(--primary-dark);
+      font-size: 10px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .teacher-melody-question-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .teacher-melody-question-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px 9px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(19, 35, 85, 0.04);
+    }
+
+    .teacher-melody-question-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .teacher-melody-question-meta {
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .teacher-melody-staff {
+      overflow: hidden;
+      border: 1px solid #e9edf8;
+      border-radius: 10px;
+      background: #fff;
+      padding: 2px 6px;
+    }
+
+    .teacher-melody-staff .staff-svg {
+      width: 100%;
+      height: 126px;
+      display: block;
+    }
+
+    .teacher-melody-answer {
+      margin-top: 5px;
+      color: var(--primary-dark);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.45;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .teacher-note-value-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+      align-items: start;
+    }
+
+    .teacher-note-value-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 7px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(19, 35, 85, 0.04);
+    }
+
+    .teacher-note-value-head {
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .teacher-note-value-symbol {
+      overflow: hidden;
+      border: 1px solid #e9edf8;
+      border-radius: 9px;
+      background: #fff;
+      padding: 2px 4px;
+    }
+
+    .teacher-note-value-symbol .staff-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-note-value-symbol .staff-svg {
+      width: 100%;
+      height: 72px;
+      display: block;
+    }
+
+    .teacher-note-value-choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3px 6px;
+      margin-top: 5px;
+      font-size: 10px;
+      line-height: 1.25;
+    }
+
+    .teacher-note-value-choice {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .teacher-note-value-answer {
+      margin-top: 5px;
+      color: var(--primary-dark);
+      font-size: 10px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    @media (max-width: 1280px) {
+      .teacher-note-value-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .teacher-repeat-question-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .teacher-repeat-question-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px 9px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(19, 35, 85, 0.04);
+    }
+
+    .teacher-repeat-question-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .teacher-repeat-question-meta {
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .teacher-repeat-staff {
+      overflow: hidden;
+      border: 1px solid #e9edf8;
+      border-radius: 10px;
+      background: #fff;
+      padding: 3px 6px;
+    }
+
+    .teacher-repeat-staff .staff-wrap {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-repeat-staff .staff-svg {
+      width: 100%;
+      height: 150px;
+      display: block;
+    }
+
+    .teacher-repeat-choices {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px 10px;
+      margin-top: 6px;
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .teacher-repeat-choice {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .teacher-repeat-answer {
+      margin-top: 5px;
+      color: var(--primary-dark);
+      font-size: 10px;
+      font-weight: 900;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1180px) {
+      .teacher-repeat-choices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .teacher-rhythm-editor {
+      display: grid;
+      gap: 12px;
+    }
+
+    .teacher-test-textarea {
+      min-height: 82px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .teacher-rhythm-paper {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px 14px 14px;
+      box-shadow: 0 1px 2px rgba(19, 35, 85, 0.04);
+    }
+
+    .teacher-rhythm-question-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .teacher-rhythm-prompt-preview {
+      flex: 1;
+      min-width: 0;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .teacher-rhythm-staff-preview {
+      overflow-x: auto;
+      border: 1px solid #e9edf8;
+      border-radius: 10px;
+      background: #fff;
+      padding: 6px 8px;
+    }
+
+    .teacher-rhythm-staff-preview svg {
+      display: block;
+      width: 100%;
+      min-width: 900px;
+      height: auto;
+    }
+
+    .teacher-rhythm-note {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* 生徒配布用の問題兼解答用紙。通常画面では非表示、印刷時だけ表示する。 */
+    #teacherStudentPrintSheet {
+      display: none;
+    }
+
+    .teacher-pdf-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .teacher-print-page {
+      color: #111;
+      background: #fff !important;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    }
+
+    .teacher-print-page-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 5mm;
+      margin-bottom: 2.5mm;
+      padding: 0 0 1.6mm;
+      background: #fff !important;
+      border: 0;
+      border-bottom: 0.35mm solid #111;
+      box-shadow: none;
+    }
+
+    .teacher-print-main-title {
+      margin: 0;
+      font-size: 13pt;
+      line-height: 1.15;
+      font-weight: 800;
+      text-align: center;
+      color: #111;
+    }
+
+    .teacher-print-page-title {
+      margin-top: 0.8mm;
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .teacher-print-page-number {
+      font-size: 8pt;
+      font-weight: 700;
+      white-space: nowrap;
+      color: #111;
+    }
+
+    /* 1ページ目だけ、参考画像に合わせたコンパクトな2段ヘッダーにする。 */
+    .teacher-print-first-header {
+      margin: 0 0 1.4mm;
+      padding: 0;
+      color: #111;
+      background: #fff !important;
+    }
+
+    .teacher-print-first-header-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: 4.5mm;
+      min-height: 5.5mm;
+      font-size: 11pt;
+      font-weight: 800;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .teacher-print-first-name-line {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      gap: 10mm;
+      width: 100%;
+      min-height: 6mm;
+      margin: 1.6mm 0 0;
+      padding: 0 1mm 0.5mm;
+      font-size: 10.5pt;
+      font-weight: 500;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .teacher-print-first-class-fields,
+    .teacher-print-first-name-field {
+      display: flex;
+      align-items: flex-end;
+      white-space: nowrap;
+    }
+
+    .teacher-print-first-class-fields {
+      gap: 4mm;
+    }
+
+    .teacher-print-first-field {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 1mm;
+    }
+
+    .teacher-print-first-field-blank {
+      display: inline-block;
+      width: 16mm;
+      height: 4.5mm;
+      border-bottom: 0.35mm solid #111;
+    }
+
+    .teacher-print-first-name-field {
+      margin-left: 0;
+      justify-content: flex-end;
+      gap: 1.5mm;
+    }
+
+    .teacher-print-first-name-blank {
+      display: inline-block;
+      width: 42mm;
+      height: 4.5mm;
+      border-bottom: 0.35mm solid #111;
+    }
+
+    .teacher-print-section-heading {
+      margin: 0 0 1.4mm;
+      font-size: 11pt;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .teacher-print-instruction {
+      margin: 0 0 2mm;
+      font-size: 8.8pt;
+      line-height: 1.4;
+    }
+
+    .teacher-print-note-example-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2mm 5mm;
+      margin: 0 0 1.2mm;
+    }
+
+    .teacher-print-note-example-item {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 16.5mm auto;
+      align-items: start;
+      gap: 0;
+      padding: 0.2mm 0;
+      break-inside: avoid;
+    }
+
+    .teacher-print-note-example-label {
+      margin-bottom: -0.7mm;
+      font-size: 8pt;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .teacher-print-note-example-staff {
+      min-width: 0;
+      height: 16.5mm;
+      overflow: hidden;
+    }
+
+    .teacher-print-note-example-staff .staff-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-print-note-example-staff .staff-svg {
+      width: 100%;
+      height: 16.5mm;
+      display: block;
+    }
+
+    .teacher-print-note-example-staff .staff-label {
+      display: none;
+    }
+
+    .teacher-print-note-example-answer {
+      margin-top: -1.8mm;
+      font-size: 8.5pt;
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .teacher-print-note-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1.1mm 0.8mm;
+    }
+
+    .teacher-print-note-item {
+      min-width: 0;
+      padding: 0 0.2mm 0.25mm;
+      border: none;
+      break-inside: avoid;
+    }
+
+    .teacher-print-question-number {
+      margin-bottom: 0;
+      font-size: 9pt;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .teacher-print-note-staff {
+      height: 21.5mm;
+      overflow: hidden;
+    }
+
+    .teacher-print-note-staff .staff-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-print-note-staff .staff-svg {
+      width: 100%;
+      height: 20.5mm;
+      display: block;
+    }
+
+    .teacher-print-note-staff .staff-label {
+      display: none;
+    }
+
+    .teacher-print-answer-line {
+      margin-top: 0.1mm;
+      font-size: 10pt;
+      line-height: 1.15;
+      text-align: center;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .teacher-print-answer-line span {
+      display: inline-block;
+      min-width: 24mm;
+      text-align: center;
+    }
+
+    .teacher-print-melody-section {
+      margin-top: 3mm;
+    }
+
+    .teacher-print-melody-section .teacher-print-section-heading {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    .teacher-print-melody-list {
+      display: grid;
+      gap: 0;
+    }
+
+    .teacher-print-melody-item {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin: 0;
+      padding: 0;
+    }
+
+    .teacher-print-melody-staff {
+      padding: 0;
+      border: none;
+      background: #fff;
+      margin-top: -0.9mm;
+    }
+
+    .teacher-print-melody-item .teacher-print-question-number {
+      margin-bottom: -0.4mm;
+      line-height: 0.95;
+    }
+
+    .teacher-print-melody-staff svg {
+      display: block;
+      width: 100%;
+      height: 27mm;
+    }
+
+    .teacher-print-melody-continuation {
+      margin: 0 0 4mm;
+    }
+
+    .teacher-print-melody-continuation .teacher-print-section-heading {
+      margin-bottom: 0.8mm;
+    }
+
+    .teacher-print-note-value-page {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .teacher-print-note-value-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2.2mm 2.2mm;
+      align-items: start;
+    }
+
+    .teacher-print-note-value-item {
+      min-width: 0;
+      padding: 0.6mm 0.5mm 0.8mm;
+      border: none;
+      break-inside: avoid;
+    }
+
+    .teacher-print-note-value-symbol {
+      height: 23mm;
+      overflow: hidden;
+    }
+
+    .teacher-print-note-value-symbol .staff-wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-print-note-value-symbol .staff-svg {
+      width: 100%;
+      height: 23mm;
+      display: block;
+    }
+
+    .teacher-print-choice-grid {
+      display: grid;
+      grid-template-columns: max-content max-content;
+      justify-content: center;
+      gap: 0.65mm 2.2mm;
+      margin-top: 0.9mm;
+      font-size: 7.8pt;
+      line-height: 1.22;
+      letter-spacing: -0.01em;
+    }
+
+    .teacher-print-note-value-answer-line {
+      margin-top: 1.25mm;
+      font-size: 10.5pt;
+      line-height: 1;
+      text-align: center;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .teacher-print-score-board {
+      display: flex;
+      align-self: stretch;
+      margin-top: auto;
+      border: 0.45mm solid #111;
+      min-height: 28mm;
+      width: 100%;
+    }
+
+    .teacher-print-score-cell {
+      display: flex;
+      flex: 1 1 0;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-width: 0;
+      padding: 2mm 1.4mm;
+      border-right: 0.35mm solid #111;
+      box-sizing: border-box;
+    }
+
+    .teacher-print-score-cell:last-child {
+      border-right: none;
+    }
+
+    .teacher-print-score-cell.total {
+      flex: 0 0 56mm;
+      align-items: stretch;
+      padding: 2mm 3mm;
+    }
+
+    .teacher-print-score-label {
+      font-size: 11pt;
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .teacher-print-score-write-area {
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 14mm;
+    }
+
+    .teacher-print-score-cell.total .teacher-print-score-label {
+      font-size: 14pt;
+      letter-spacing: 0.02em;
+      text-align: left;
+    }
+
+    .teacher-print-score-total-denominator {
+      margin-top: auto;
+      font-size: 13pt;
+      font-weight: 800;
+      line-height: 1;
+      text-align: right;
+    }
+
+    .teacher-print-repeat-list {
+      display: grid;
+      gap: 1.8mm;
+    }
+
+    .teacher-print-repeat-item {
+      padding: 0;
+      border: none;
+      break-inside: avoid;
+    }
+
+    .teacher-print-repeat-staff {
+      height: 34mm;
+      overflow: hidden;
+    }
+
+    .teacher-print-repeat-staff .staff-wrap {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      margin: 0;
+    }
+
+    .teacher-print-repeat-staff .staff-svg {
+      width: 100%;
+      height: 34mm;
+      display: block;
+    }
+
+    .teacher-print-repeat-choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55mm 2.6mm;
+      margin-top: 0.55mm;
+      font-size: 7.65pt;
+      line-height: 1.22;
+    }
+
+    .teacher-print-repeat-choice {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 0.7mm;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .teacher-print-repeat-choice-label {
+      white-space: nowrap;
+    }
+
+    .teacher-print-repeat-choice-body {
+      display: block;
+      min-width: 0;
+      letter-spacing: -0.012em;
+    }
+
+    .teacher-print-repeat-seq-step,
+    .teacher-print-repeat-seq-tail {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .teacher-print-repeat-seq-step {
+      margin-right: 0.22em;
+    }
+
+    .teacher-print-repeat-answer-line {
+      margin-top: 0.9mm;
+      font-size: 10.5pt;
+      line-height: 1;
+      text-align: right;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .teacher-print-repeat-rhythm-page .teacher-print-repeat-list {
+      margin-bottom: 2.4mm;
+    }
+
+    .teacher-print-rhythm-section {
+      margin-top: 5mm;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .teacher-print-rhythm-section .teacher-print-section-heading {
+      margin-bottom: 0.8mm;
+    }
+
+    .teacher-print-rhythm-attention {
+      margin: 0 0 1.2mm;
+      font-size: 8.6pt;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .teacher-print-rhythm-staff {
+      padding: 0.5mm 0;
+      border: none;
+    }
+
+    .teacher-print-rhythm-staff svg {
+      display: block;
+      width: 100%;
+      height: 31mm;
+    }
+
+    .teacher-print-rhythm-workspace {
+      min-height: 16mm;
+      margin-top: 1.8mm;
+      border: none;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+
+      html,
+      body {
+        width: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+
+      body.teacher-test-printing {
+        display: block !important;
+        overflow: visible !important;
+      }
+
+      body.teacher-test-printing > .app {
+        display: none !important;
+      }
+
+      body.teacher-test-printing #teacherStudentPrintSheet {
+        display: block !important;
+      }
+
+      body.teacher-test-printing .teacher-print-page {
+        width: 190mm;
+        min-height: 275mm;
+        height: auto;
+        margin: 0 auto;
+        box-sizing: border-box;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      body.teacher-test-printing .teacher-print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      body.teacher-test-printing * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    @media (max-width: 899px) {
+      #teacherTestScreen {
+        display: none !important;
+      }
+    }
+
     /* スマホ版トップページだけ、横幅を使い切り、進捗と各セクションの縦幅を圧縮する。 */
     @media (max-width: 720px) {
       body.home-mobile-compact {
@@ -2931,7 +4008,7 @@
 <body>
   <div class="app">
     <header>
-      <h1>楽典トレーナー</h1>
+      <h1 id="appTitle">楽典トレーナー</h1>
       <p id="musicQuote" class="music-quote"></p>
     </header>
 
@@ -3029,6 +4106,114 @@
         </div>
       </section>
 
+      <section id="teacherTestScreen" class="screen" aria-label="先生用本番テスト作成画面">
+        <button class="back-link" type="button" onclick="closeTeacherTestScreen()">← トップへ戻る</button>
+        <h2>本番テスト作成（先生用）</h2>
+        <div class="teacher-test-placeholder">
+          <h3>テスト基本情報</h3>
+          <p class="small-note" style="margin-top:0;">
+            ここで入力した内容は、この端末・このブラウザに自動保存されます。
+          </p>
+
+          <div class="teacher-test-form-grid">
+            <label class="teacher-test-field" for="teacherTestTitleInput">
+              テストタイトル
+              <input id="teacherTestTitleInput" class="teacher-test-input" type="text" maxlength="60" placeholder="例：応用音楽　1学期期末テスト" autocomplete="off" />
+            </label>
+
+            <label class="teacher-test-field" for="teacherTestDateInput">
+              実施日
+              <input id="teacherTestDateInput" class="teacher-test-input" type="date" />
+            </label>
+          </div>
+
+          <div class="teacher-test-basic-preview" aria-label="テスト基本情報プレビュー">
+            <div id="teacherTestPreviewTitle" class="teacher-test-preview-title">楽典テスト</div>
+            <div class="teacher-test-preview-meta">
+              <span id="teacherTestPreviewDate">実施日：未設定</span>
+            </div>
+          </div>
+
+          <div class="teacher-test-section-title">固定構成（全40問）</div>
+          <div class="teacher-test-outline" aria-label="本番テストの固定構成">
+            <div class="teacher-test-outline-card">Ⅰ 音名<br>15問</div>
+            <div class="teacher-test-outline-card">Ⅱ 旋律<br>5問</div>
+            <div class="teacher-test-outline-card">Ⅲ 音価<br>13問</div>
+            <div class="teacher-test-outline-card">Ⅳ 反復<br>6問</div>
+            <div class="teacher-test-outline-card">Ⅴ リズム創作<br>1問</div>
+          </div>
+          <div class="teacher-test-editor-section">
+            <div class="teacher-test-editor-header">
+              <div>
+                <h3>Ⅰ 音名（イタリア音名・記述式）</h3>
+                <p class="small-note" style="margin:4px 0 0;">15問を自動選出します。紙テストを意識した小さめ表示です。「この問題を変更」で1問ずつ差し替えられます。</p>
+              </div>
+              <button class="sub-btn" type="button" onclick="regenerateTeacherNoteQuestions()">15問を選び直す</button>
+            </div>
+            <div class="teacher-note-example-label">印刷用の例題（ト音記号・ヘ音記号を各1問）</div>
+            <div id="teacherNoteExampleGrid" class="teacher-note-example-grid" aria-label="音名の例題2問"></div>
+            <div id="teacherNoteQuestionGrid" class="teacher-note-question-grid" aria-label="音名問題15問"></div>
+          </div>
+
+          <div class="teacher-test-editor-section">
+            <div class="teacher-test-editor-header">
+              <div>
+                <h3>Ⅱ 旋律（記述式）</h3>
+                <p class="small-note" style="margin:4px 0 0;">2小節の旋律を5問、自動選出します。「この問題を変更」で1問ずつ差し替えられます。</p>
+              </div>
+              <button class="sub-btn" type="button" onclick="regenerateTeacherMelodyQuestions()">5問を選び直す</button>
+            </div>
+            <div id="teacherMelodyQuestionList" class="teacher-melody-question-list" aria-label="旋律問題5問"></div>
+          </div>
+
+          <div class="teacher-test-editor-section">
+            <div class="teacher-test-editor-header">
+              <div>
+                <h3>Ⅲ 音価（選択式）</h3>
+                <p class="small-note" style="margin:4px 0 0;">既存の音符・休符13種類をすべて出題します。必要に応じて問題順だけ入れ替えられます。</p>
+              </div>
+              <button class="sub-btn" type="button" onclick="shuffleTeacherNoteValueQuestions()">13問の順番を入れ替える</button>
+            </div>
+            <div id="teacherNoteValueGrid" class="teacher-note-value-grid" aria-label="音価問題13問"></div>
+          </div>
+
+          <div class="teacher-test-editor-section">
+            <div class="teacher-test-editor-header">
+              <div>
+                <h3>Ⅳ 反復（選択式）</h3>
+                <p class="small-note" style="margin:4px 0 0;">反復・1番括弧／2番括弧・D.C.／D.S.・Fine／Codaを含む6問を自動選出します。</p>
+              </div>
+              <button class="sub-btn" type="button" onclick="regenerateTeacherRepeatQuestions()">6問を選び直す</button>
+            </div>
+            <div id="teacherRepeatQuestionList" class="teacher-repeat-question-list" aria-label="反復問題6問"></div>
+          </div>
+
+          <div class="teacher-test-editor-section">
+            <div class="teacher-test-editor-header">
+              <div>
+                <h3>Ⅴ リズム創作（記述式）</h3>
+                <p class="small-note" style="margin:4px 0 0;">4/4拍子・4小節の固定課題です。課題文と注意事項はPDF仕様に合わせて固定されています。</p>
+              </div>
+            </div>
+
+            <div class="teacher-rhythm-editor">
+              <article class="teacher-rhythm-paper" aria-label="リズム創作問題プレビュー">
+                <div class="teacher-rhythm-question-head">
+                  <span id="teacherRhythmPromptPreview" class="teacher-rhythm-prompt-preview"></span>
+                </div>
+                <div class="teacher-rhythm-note">※全音符・全休符は使用不可。また、各小節に新しいリズムを追加すること。</div>
+                <div id="teacherRhythmStaffPreview" class="teacher-rhythm-staff-preview"></div>
+              </article>
+            </div>
+          </div>
+
+          <div class="teacher-pdf-actions">
+            <button class="main-btn" type="button" onclick="printTeacherStudentTestPdf()">生徒用PDFを出力</button>
+            <span class="small-note" style="margin:0;">印刷画面で「PDFに保存」を選ぶと、問題兼解答用紙として保存できます。※ブラウザの「ヘッダーとフッター」はOFFにしてください。</span>
+          </div>
+        </div>
+      </section>
+
       <section id="historyScreen" class="screen">
         <button class="back-link" onclick="showScreen(homeScreen)">← トップへ戻る</button>
         <h2>学習履歴</h2>
@@ -3043,7 +4228,7 @@
       <section id="noteNameModeScreen" class="screen">
         <button class="back-link" onclick="backHome()">← トップへ戻る</button>
         <h2>音名クイズの種類を選んでください</h2>
-        <p class="small-note">授業内容に合わせて、イタリア音名・ドイツ音名・英語音名を分けて練習できます。</p>
+        <p class="small-note">現在はイタリア音名のみ練習できます。ほかの種類は選択できません。</p>
 
         <div class="grid">
           <div class="mode-card" tabindex="0" role="button" onclick="startQuiz('noteNameItalian')"
@@ -3051,18 +4236,15 @@
             <h2>イタリア音名</h2>
             <p>ド・レ・ミ・ファ・ソ・ラ・シで答える練習です。</p>
           </div>
-          <div class="mode-card" tabindex="0" role="button" onclick="startQuiz('noteNameGerman')"
-            onkeydown="handleCardKey(event, 'noteNameGerman')">
+          <div class="mode-card mode-card-disabled" aria-disabled="true">
             <h2>ドイツ音名</h2>
             <p>C・D・E・F・G・A・H、Cis・Desなどで答える練習です。</p>
           </div>
-          <div class="mode-card" tabindex="0" role="button" onclick="startQuiz('noteNameEnglish')"
-            onkeydown="handleCardKey(event, 'noteNameEnglish')">
+          <div class="mode-card mode-card-disabled" aria-disabled="true">
             <h2>英語音名</h2>
             <p>C・D・E・F・G・A・B、C#・Dbなどで答える練習です。</p>
           </div>
-          <div class="mode-card" tabindex="0" role="button" onclick="startQuiz('noteNameMix')"
-            onkeydown="handleCardKey(event, 'noteNameMix')">
+          <div class="mode-card mode-card-disabled" aria-disabled="true">
             <h2>ミックス</h2>
             <p>イタリア音名・ドイツ音名・英語音名を混ぜて出題します。</p>
           </div>
@@ -3233,6 +4415,8 @@
     </main>
   </div>
 
+  <div id="teacherStudentPrintSheet" aria-hidden="true"></div>
+
   <script>
 
     const safeStorage = (() => {
@@ -3358,9 +4542,17 @@
       }
     }
 
+    function resetMobileViewportPosition() {
+      window.requestAnimationFrame(() => {
+        if (window.scrollX !== 0 || window.scrollY !== 0) {
+          window.scrollTo(0, 0);
+        }
+      });
+    }
+
     window.addEventListener("pageshow", () => {
       window.setTimeout(() => checkForAppUpdate(true), 250);
-      window.setTimeout(() => resetMobileViewportPosition(), 0);
+      window.setTimeout(resetMobileViewportPosition, 0);
     });
 
     window.addEventListener("focus", () => {
@@ -4206,8 +5398,27 @@
     let noteNameHintCandidates = [];
 
     const app = document.querySelector(".app");
+    const appTitle = document.getElementById("appTitle");
     const loginScreen = document.getElementById("loginScreen");
     const homeScreen = document.getElementById("homeScreen");
+    const teacherTestScreen = document.getElementById("teacherTestScreen");
+    const teacherTestTitleInput = document.getElementById("teacherTestTitleInput");
+    const teacherTestGradeInput = document.getElementById("teacherTestGradeInput");
+    const teacherTestClassInput = document.getElementById("teacherTestClassInput");
+    const teacherTestDateInput = document.getElementById("teacherTestDateInput");
+    const teacherTestNameLabelInput = document.getElementById("teacherTestNameLabelInput");
+    const teacherTestPreviewTitle = document.getElementById("teacherTestPreviewTitle");
+    const teacherTestPreviewTarget = document.getElementById("teacherTestPreviewTarget");
+    const teacherTestPreviewDate = document.getElementById("teacherTestPreviewDate");
+    const teacherTestPreviewName = document.getElementById("teacherTestPreviewName");
+    const teacherNoteExampleGrid = document.getElementById("teacherNoteExampleGrid");
+    const teacherNoteQuestionGrid = document.getElementById("teacherNoteQuestionGrid");
+    const teacherMelodyQuestionList = document.getElementById("teacherMelodyQuestionList");
+    const teacherNoteValueGrid = document.getElementById("teacherNoteValueGrid");
+    const teacherRepeatQuestionList = document.getElementById("teacherRepeatQuestionList");
+    const teacherRhythmPromptInput = document.getElementById("teacherRhythmPromptInput");
+    const teacherRhythmPromptPreview = document.getElementById("teacherRhythmPromptPreview");
+    const teacherRhythmStaffPreview = document.getElementById("teacherRhythmStaffPreview");
     const historyScreen = document.getElementById("historyScreen");
     const noteNameModeScreen = document.getElementById("noteNameModeScreen");
     const melodyNameOptionScreen = document.getElementById("melodyNameOptionScreen");
@@ -5045,6 +6256,1045 @@
       if (stroke) ctx.stroke();
     }
 
+    const TEACHER_ENTRY_REQUIRED_CLICKS = 7;
+    const TEACHER_ENTRY_WINDOW_MS = 4000;
+    const TEACHER_TEST_SETTINGS_KEY = "musicTheoryTeacherTestSettingsV1";
+    const TEACHER_TEST_NOTE_SELECTION_KEY = "musicTheoryTeacherTestNoteSelectionV1";
+    const TEACHER_TEST_NOTE_EXAMPLE_SELECTION_KEY = "musicTheoryTeacherTestNoteExampleSelectionV1";
+    const TEACHER_TEST_MELODY_SELECTION_KEY = "musicTheoryTeacherTestMelodySelectionV1";
+    const TEACHER_TEST_NOTE_VALUE_ORDER_KEY = "musicTheoryTeacherTestNoteValueOrderV1";
+    const TEACHER_TEST_REPEAT_SELECTION_KEY = "musicTheoryTeacherTestRepeatSelectionV1";
+    const TEACHER_TEST_RHYTHM_SETTINGS_KEY = "musicTheoryTeacherTestRhythmSettingsV1";
+    const TEACHER_TEST_NOTE_COUNT = 15;
+    const TEACHER_TEST_MELODY_COUNT = 5;
+    const TEACHER_TEST_NOTE_VALUE_COUNT = 13;
+    const TEACHER_TEST_REPEAT_COUNT = 6;
+    let teacherEntryClickCount = 0;
+    let teacherEntryStartedAt = 0;
+    let teacherTestNoteQuestionIds = [];
+    let teacherTestNoteExampleIds = [];
+    let teacherTestMelodyQuestionIds = [];
+    let teacherTestNoteValueQuestionIds = [];
+    let teacherTestRepeatQuestionIds = [];
+
+    function createDefaultTeacherTestSettings() {
+      return {
+        title: "楽典テスト",
+        testDate: ""
+      };
+    }
+
+    function loadTeacherTestSettings() {
+      const defaults = createDefaultTeacherTestSettings();
+      let saved = null;
+
+      try {
+        saved = JSON.parse(safeStorage.getItem(TEACHER_TEST_SETTINGS_KEY) || "null");
+      } catch (error) {
+        saved = null;
+      }
+
+      const settings = saved && typeof saved === "object"
+        ? {
+            title: String(saved.title ?? defaults.title).slice(0, 60),
+            testDate: /^\d{4}-\d{2}-\d{2}$/.test(String(saved.testDate || "")) ? String(saved.testDate) : ""
+          }
+        : defaults;
+
+      if (teacherTestTitleInput) teacherTestTitleInput.value = settings.title;
+      if (teacherTestDateInput) teacherTestDateInput.value = settings.testDate;
+      renderTeacherTestBasicPreview(settings);
+      return settings;
+    }
+
+    function getTeacherTestSettingsFromInputs() {
+      return {
+        title: teacherTestTitleInput ? teacherTestTitleInput.value.trim() : "",
+        testDate: teacherTestDateInput ? teacherTestDateInput.value : ""
+      };
+    }
+
+    function formatTeacherTestDate(dateText) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateText || "")) return "未設定";
+      const [year, month, day] = dateText.split("-");
+      return `${year}年${Number(month)}月${Number(day)}日`;
+    }
+
+    function formatTeacherTestDateWithWeekday(dateText) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateText || "")) return "実施日未設定";
+      const [year, month, day] = dateText.split("-").map(Number);
+      const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+      const weekday = weekdays[new Date(year, month - 1, day).getDay()];
+      return `${year}年${month}月${day}日（${weekday}）`;
+    }
+
+    function renderTeacherTestBasicPreview(settings = getTeacherTestSettingsFromInputs()) {
+      const title = settings.title || "（タイトル未入力）";
+
+      if (teacherTestPreviewTitle) teacherTestPreviewTitle.textContent = title;
+      if (teacherTestPreviewDate) teacherTestPreviewDate.textContent = `実施日：${formatTeacherTestDate(settings.testDate)}`;
+    }
+
+    function saveTeacherTestSettings() {
+      const settings = getTeacherTestSettingsFromInputs();
+      safeStorage.setItem(TEACHER_TEST_SETTINGS_KEY, JSON.stringify(settings));
+      renderTeacherTestBasicPreview(settings);
+    }
+
+    function getTeacherItalianNotePool() {
+      return quizData.noteName.questions.filter(question => question.noteLanguage === "italian");
+    }
+
+    function createBalancedTeacherNoteSelection() {
+      const pool = getTeacherItalianNotePool();
+      const groups = new Map();
+      pool.forEach(question => {
+        const key = `${question.accidental}:${question.clefName}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(question);
+      });
+
+      groups.forEach(group => shuffleArray(group));
+
+      const plan = [
+        ["natural", "ト音記号"], ["natural", "ト音記号"], ["natural", "ト音記号"], ["natural", "ヘ音記号"], ["natural", "ヘ音記号"],
+        ["sharp", "ト音記号"], ["sharp", "ト音記号"], ["sharp", "ヘ音記号"], ["sharp", "ヘ音記号"], ["sharp", "ヘ音記号"],
+        ["flat", "ト音記号"], ["flat", "ト音記号"], ["flat", "ト音記号"], ["flat", "ヘ音記号"], ["flat", "ヘ音記号"]
+      ];
+
+      const selected = [];
+      plan.forEach(([accidental, clefName]) => {
+        const group = groups.get(`${accidental}:${clefName}`) || [];
+        const question = group.pop();
+        if (question) selected.push(question.id);
+      });
+
+      if (selected.length < TEACHER_TEST_NOTE_COUNT) {
+        const selectedSet = new Set(selected);
+        const rest = shuffleArray(pool.filter(question => !selectedSet.has(question.id)));
+        selected.push(...rest.slice(0, TEACHER_TEST_NOTE_COUNT - selected.length).map(question => question.id));
+      }
+
+      return selected.slice(0, TEACHER_TEST_NOTE_COUNT);
+    }
+
+    function createDefaultTeacherNoteExamples() {
+      const naturalPool = getTeacherItalianNotePool().filter(question => question.accidental === "natural");
+      const treble = naturalPool.find(question => question.clefName === "ト音記号" && question.positionName === "第1線")
+        || naturalPool.find(question => question.clefName === "ト音記号");
+      const bass = naturalPool.find(question => question.clefName === "ヘ音記号" && question.positionName === "第2線")
+        || naturalPool.find(question => question.clefName === "ヘ音記号");
+      return [treble?.id, bass?.id].filter(Boolean);
+    }
+
+    function saveTeacherNoteExampleSelection() {
+      safeStorage.setItem(TEACHER_TEST_NOTE_EXAMPLE_SELECTION_KEY, JSON.stringify(teacherTestNoteExampleIds));
+    }
+
+    function loadTeacherNoteExampleSelection() {
+      const validIds = new Set(getTeacherItalianNotePool().map(question => question.id));
+      let savedIds = [];
+
+      try {
+        const saved = JSON.parse(safeStorage.getItem(TEACHER_TEST_NOTE_EXAMPLE_SELECTION_KEY) || "[]");
+        if (Array.isArray(saved)) savedIds = saved.map(String);
+      } catch (error) {
+        savedIds = [];
+      }
+
+      const validExamples = savedIds
+        .map(getTeacherNoteQuestionById)
+        .filter(Boolean);
+      const hasTreble = validExamples.some(question => question.clefName === "ト音記号");
+      const hasBass = validExamples.some(question => question.clefName === "ヘ音記号");
+
+      teacherTestNoteExampleIds = validExamples.length === 2 && hasTreble && hasBass
+        ? [
+            validExamples.find(question => question.clefName === "ト音記号").id,
+            validExamples.find(question => question.clefName === "ヘ音記号").id
+          ]
+        : createDefaultTeacherNoteExamples();
+
+      saveTeacherNoteExampleSelection();
+      renderTeacherNoteExamples();
+    }
+
+    function renderTeacherNoteExamples() {
+      if (!teacherNoteExampleGrid) return;
+      const labels = ["例題（ト音記号）", "例題（ヘ音記号）"];
+
+      teacherNoteExampleGrid.innerHTML = teacherTestNoteExampleIds.map((questionId, index) => {
+        const question = getTeacherNoteQuestionById(questionId);
+        if (!question) return "";
+        const answer = question.correctAnswers?.[0] || question.answer || "";
+        return `
+          <article class="teacher-note-question-card teacher-note-example-card">
+            <div class="teacher-note-question-head">
+              <span>${labels[index] || "例題"}</span>
+              <button class="teacher-note-change-btn" type="button" onclick="replaceTeacherNoteExample(${index})">この例題を変更</button>
+            </div>
+            <div class="teacher-note-staff">${createStaffHtml(question.display)}</div>
+            <div class="teacher-note-answer">正答：${escapeHtml(answer)}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function replaceTeacherNoteExample(index) {
+      const currentQuestion = getTeacherNoteQuestionById(teacherTestNoteExampleIds[index]);
+      if (!currentQuestion) return;
+
+      const desiredClef = index === 0 ? "ト音記号" : "ヘ音記号";
+      const excludedIds = new Set([...teacherTestNoteQuestionIds, ...teacherTestNoteExampleIds]);
+      let candidates = getTeacherItalianNotePool().filter(question =>
+        question.clefName === desiredClef &&
+        question.id !== currentQuestion.id &&
+        !excludedIds.has(question.id)
+      );
+
+      if (candidates.length === 0) {
+        candidates = getTeacherItalianNotePool().filter(question =>
+          question.clefName === desiredClef && question.id !== currentQuestion.id
+        );
+      }
+
+      if (candidates.length === 0) return;
+      const replacement = candidates[Math.floor(Math.random() * candidates.length)];
+      teacherTestNoteExampleIds[index] = replacement.id;
+      saveTeacherNoteExampleSelection();
+      renderTeacherNoteExamples();
+    }
+
+    function saveTeacherNoteSelection() {
+      safeStorage.setItem(TEACHER_TEST_NOTE_SELECTION_KEY, JSON.stringify(teacherTestNoteQuestionIds));
+    }
+
+    function loadTeacherNoteSelection() {
+      const validIds = new Set(getTeacherItalianNotePool().map(question => question.id));
+      let savedIds = [];
+
+      try {
+        const saved = JSON.parse(safeStorage.getItem(TEACHER_TEST_NOTE_SELECTION_KEY) || "[]");
+        if (Array.isArray(saved)) savedIds = saved.map(String);
+      } catch (error) {
+        savedIds = [];
+      }
+
+      const uniqueValidIds = [...new Set(savedIds.filter(id => validIds.has(id)))];
+      teacherTestNoteQuestionIds = uniqueValidIds.length === TEACHER_TEST_NOTE_COUNT
+        ? uniqueValidIds
+        : createBalancedTeacherNoteSelection();
+
+      saveTeacherNoteSelection();
+      renderTeacherNoteQuestions();
+    }
+
+    function getTeacherNoteQuestionById(questionId) {
+      return getTeacherItalianNotePool().find(question => question.id === questionId) || null;
+    }
+
+    function renderTeacherNoteQuestions() {
+      if (!teacherNoteQuestionGrid) return;
+
+      teacherNoteQuestionGrid.innerHTML = teacherTestNoteQuestionIds.map((questionId, index) => {
+        const question = getTeacherNoteQuestionById(questionId);
+        if (!question) return "";
+        const answer = question.correctAnswers?.[0] || question.answer || "";
+        return `
+          <article class="teacher-note-question-card">
+            <div class="teacher-note-question-head">
+              <span>問${index + 1}</span>
+              <button class="teacher-note-change-btn" type="button" onclick="replaceTeacherNoteQuestion(${index})">この問題を変更</button>
+            </div>
+            <div class="teacher-note-staff">${createStaffHtml(question.display)}</div>
+            <div class="teacher-note-answer">正答：${answer}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function regenerateTeacherNoteQuestions() {
+      if (teacherTestNoteQuestionIds.length === TEACHER_TEST_NOTE_COUNT) {
+        const confirmed = confirm("音名15問をすべて選び直しますか？");
+        if (!confirmed) return;
+      }
+
+      teacherTestNoteQuestionIds = createBalancedTeacherNoteSelection();
+      saveTeacherNoteSelection();
+      renderTeacherNoteQuestions();
+    }
+
+    function replaceTeacherNoteQuestion(index) {
+      const currentQuestion = getTeacherNoteQuestionById(teacherTestNoteQuestionIds[index]);
+      if (!currentQuestion) return;
+
+      const usedIds = new Set(teacherTestNoteQuestionIds);
+      let candidates = getTeacherItalianNotePool().filter(question =>
+        question.id !== currentQuestion.id &&
+        !usedIds.has(question.id) &&
+        question.accidental === currentQuestion.accidental &&
+        question.clefName === currentQuestion.clefName
+      );
+
+      if (candidates.length === 0) {
+        candidates = getTeacherItalianNotePool().filter(question =>
+          question.id !== currentQuestion.id && !usedIds.has(question.id)
+        );
+      }
+
+      if (candidates.length === 0) return;
+      const replacement = candidates[Math.floor(Math.random() * candidates.length)];
+      teacherTestNoteQuestionIds[index] = replacement.id;
+      saveTeacherNoteSelection();
+      renderTeacherNoteQuestions();
+    }
+
+    function getTeacherMelodyPool() {
+      return quizData.melodyName.questions;
+    }
+
+    function createBalancedTeacherMelodySelection() {
+      const pool = getTeacherMelodyPool();
+      const groups = new Map();
+      pool.forEach(question => {
+        const key = `${question.clef}:${question.hasAccidental ? "with" : "none"}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(question);
+      });
+
+      groups.forEach(group => shuffleArray(group));
+      const extraClef = Math.random() < 0.5 ? "treble" : "bass";
+      const plan = [
+        ["treble", true],
+        ["bass", true],
+        ["treble", false],
+        ["bass", false],
+        [extraClef, true]
+      ];
+
+      const selected = [];
+      plan.forEach(([clef, hasAccidental]) => {
+        const key = `${clef}:${hasAccidental ? "with" : "none"}`;
+        const group = groups.get(key) || [];
+        const question = group.pop();
+        if (question) selected.push(question.id);
+      });
+
+      if (selected.length < TEACHER_TEST_MELODY_COUNT) {
+        const selectedSet = new Set(selected);
+        const rest = shuffleArray(pool.filter(question => !selectedSet.has(question.id)));
+        selected.push(...rest.slice(0, TEACHER_TEST_MELODY_COUNT - selected.length).map(question => question.id));
+      }
+
+      return selected.slice(0, TEACHER_TEST_MELODY_COUNT);
+    }
+
+    function saveTeacherMelodySelection() {
+      safeStorage.setItem(TEACHER_TEST_MELODY_SELECTION_KEY, JSON.stringify(teacherTestMelodyQuestionIds));
+    }
+
+    function loadTeacherMelodySelection() {
+      const validIds = new Set(getTeacherMelodyPool().map(question => question.id));
+      let savedIds = [];
+
+      try {
+        const saved = JSON.parse(safeStorage.getItem(TEACHER_TEST_MELODY_SELECTION_KEY) || "[]");
+        if (Array.isArray(saved)) savedIds = saved.map(String);
+      } catch (error) {
+        savedIds = [];
+      }
+
+      const uniqueValidIds = [...new Set(savedIds.filter(id => validIds.has(id)))];
+      teacherTestMelodyQuestionIds = uniqueValidIds.length === TEACHER_TEST_MELODY_COUNT
+        ? uniqueValidIds
+        : createBalancedTeacherMelodySelection();
+
+      saveTeacherMelodySelection();
+      renderTeacherMelodyQuestions();
+    }
+
+    function getTeacherMelodyQuestionById(questionId) {
+      return getTeacherMelodyPool().find(question => question.id === questionId) || null;
+    }
+
+    function createTeacherMelodyStaffHtml(question) {
+      const notes = Array.isArray(question.notes) ? question.notes : [];
+      const measureCount = question.measureCount || 2;
+      const compactLayout = true;
+      const lineGap = 11;
+      const staffTop = 80;
+      const staffLeft = 10;
+      const clefWidth = 48;
+      const musicLeft = staffLeft + clefWidth;
+      const svgWidth = 940;
+      const svgHeight = 180;
+      const measureWidth = (svgWidth - musicLeft - 10) / measureCount;
+      const notePositions = {};
+      let svg = "";
+
+      svg += [0, 1, 2, 3, 4]
+        .map(index => `<line x1="${staffLeft}" y1="${staffTop + index * lineGap}" x2="${svgWidth - 10}" y2="${staffTop + index * lineGap}" stroke="#202436" stroke-width="2.4" />`)
+        .join("");
+      svg += createMelodyClefHtml(question.clef, staffLeft, staffTop, lineGap, compactLayout, true);
+
+      for (let measure = 1; measure <= measureCount; measure++) {
+        const x = musicLeft + measure * measureWidth;
+        const isFinal = measure === measureCount;
+        if (isFinal) {
+          svg += `<line x1="${x - 6}" y1="${staffTop}" x2="${x - 6}" y2="${staffTop + lineGap * 4}" stroke="#202436" stroke-width="2" />`;
+        }
+        svg += `<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffTop + lineGap * 4}" stroke="#202436" stroke-width="${isFinal ? 4 : 2.4}" />`;
+      }
+
+      notes.forEach((note, index) => {
+        const measureX = musicLeft + note.measureIndex * measureWidth;
+        const measureInnerLeft = measureX + 18;
+        const measureInnerRight = measureX + measureWidth - 14;
+        const x = measureInnerLeft + (note.slot / 16) * (measureInnerRight - measureInnerLeft);
+        const y = staffTop + (note.y - 42) * 0.56;
+        notePositions[note.index] = { x, y, row: 0 };
+        const accidentalHtml = createMelodyAccidentalHtml(note.accidental, x, y, compactLayout);
+        svg += `${createMelodyLedgerLines(x, y, staffTop, compactLayout)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index), compactLayout)}`;
+      });
+      svg += createMelodyBeamHtml(notes, notePositions, compactLayout);
+
+      return `<svg class="staff-svg" viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${question.clefLabel}・${measureCount}小節の旋律" style="overflow:visible;">${svg}</svg>`;
+    }
+
+    function renderTeacherMelodyQuestions() {
+      if (!teacherMelodyQuestionList) return;
+
+      teacherMelodyQuestionList.innerHTML = teacherTestMelodyQuestionIds.map((questionId, index) => {
+        const question = getTeacherMelodyQuestionById(questionId);
+        if (!question) return "";
+        const answer = (question.notes || []).map(note => note.answer).join("・");
+        const accidentalLabel = question.hasAccidental ? "臨時記号あり" : "臨時記号なし";
+        return `
+          <article class="teacher-melody-question-card">
+            <div class="teacher-melody-question-head">
+              <div><span>問${index + 1}</span><span class="teacher-melody-question-meta">${question.clefLabel}・${accidentalLabel}</span></div>
+              <button class="teacher-note-change-btn" type="button" onclick="replaceTeacherMelodyQuestion(${index})">この問題を変更</button>
+            </div>
+            <div class="teacher-melody-staff">${createTeacherMelodyStaffHtml(question)}</div>
+            <div class="teacher-melody-answer">正答：${answer}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function regenerateTeacherMelodyQuestions() {
+      if (teacherTestMelodyQuestionIds.length === TEACHER_TEST_MELODY_COUNT) {
+        const confirmed = confirm("旋律5問をすべて選び直しますか？");
+        if (!confirmed) return;
+      }
+
+      teacherTestMelodyQuestionIds = createBalancedTeacherMelodySelection();
+      saveTeacherMelodySelection();
+      renderTeacherMelodyQuestions();
+    }
+
+    function replaceTeacherMelodyQuestion(index) {
+      const currentQuestion = getTeacherMelodyQuestionById(teacherTestMelodyQuestionIds[index]);
+      if (!currentQuestion) return;
+
+      const usedIds = new Set(teacherTestMelodyQuestionIds);
+      let candidates = getTeacherMelodyPool().filter(question =>
+        question.id !== currentQuestion.id &&
+        !usedIds.has(question.id) &&
+        question.clef === currentQuestion.clef &&
+        question.hasAccidental === currentQuestion.hasAccidental
+      );
+
+      if (candidates.length === 0) {
+        candidates = getTeacherMelodyPool().filter(question =>
+          question.id !== currentQuestion.id && !usedIds.has(question.id)
+        );
+      }
+
+      if (candidates.length === 0) return;
+      const replacement = candidates[Math.floor(Math.random() * candidates.length)];
+      teacherTestMelodyQuestionIds[index] = replacement.id;
+      saveTeacherMelodySelection();
+      renderTeacherMelodyQuestions();
+    }
+
+    function getTeacherNoteValuePool() {
+      return quizData.noteValue.questions;
+    }
+
+    function saveTeacherNoteValueOrder() {
+      safeStorage.setItem(TEACHER_TEST_NOTE_VALUE_ORDER_KEY, JSON.stringify(teacherTestNoteValueQuestionIds));
+    }
+
+    function loadTeacherNoteValueOrder() {
+      const pool = getTeacherNoteValuePool();
+      const validIds = new Set(pool.map(question => question.id));
+      let savedIds = [];
+
+      try {
+        const saved = JSON.parse(safeStorage.getItem(TEACHER_TEST_NOTE_VALUE_ORDER_KEY) || "[]");
+        if (Array.isArray(saved)) savedIds = saved.map(String);
+      } catch (error) {
+        savedIds = [];
+      }
+
+      const uniqueValidIds = [...new Set(savedIds.filter(id => validIds.has(id)))];
+      teacherTestNoteValueQuestionIds = uniqueValidIds.length === TEACHER_TEST_NOTE_VALUE_COUNT
+        ? uniqueValidIds
+        : pool.map(question => question.id);
+
+      saveTeacherNoteValueOrder();
+      renderTeacherNoteValueQuestions();
+    }
+
+    function getTeacherNoteValueQuestionById(questionId) {
+      return getTeacherNoteValuePool().find(question => question.id === questionId) || null;
+    }
+
+    function getTeacherChoiceLabel(index) {
+      return ["ア", "イ", "ウ", "エ", "オ", "カ"][index] || String(index + 1);
+    }
+
+    function renderTeacherNoteValueQuestions() {
+      if (!teacherNoteValueGrid) return;
+
+      teacherNoteValueGrid.innerHTML = teacherTestNoteValueQuestionIds.map((questionId, index) => {
+        const question = getTeacherNoteValueQuestionById(questionId);
+        if (!question) return "";
+        const answerIndex = question.choices.indexOf(question.answer);
+        const answerLabel = getTeacherChoiceLabel(answerIndex);
+        const choices = question.choices.map((choice, choiceIndex) =>
+          `<div class="teacher-note-value-choice">${getTeacherChoiceLabel(choiceIndex)}．${choice}</div>`
+        ).join("");
+
+        return `
+          <article class="teacher-note-value-card">
+            <div class="teacher-note-value-head">問${index + 1}</div>
+            <div class="teacher-note-value-symbol">${createNoteValueHtml(question.display)}</div>
+            <div class="teacher-note-value-choices">${choices}</div>
+            <div class="teacher-note-value-answer">正答：${answerLabel}（${question.answer}）</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function shuffleTeacherNoteValueQuestions() {
+      const confirmed = confirm("音価13問の並び順を入れ替えますか？");
+      if (!confirmed) return;
+
+      teacherTestNoteValueQuestionIds = shuffleArray([...getTeacherNoteValuePool()]).map(question => question.id);
+      saveTeacherNoteValueOrder();
+      renderTeacherNoteValueQuestions();
+    }
+
+    function getTeacherRepeatPool() {
+      return quizData.repeatOrder.questions;
+    }
+
+    function getTeacherRepeatCategoryLabel(category) {
+      const labels = {
+        simpleRepeat: "反復記号",
+        firstSecondEnding: "1番括弧・2番括弧",
+        dcFine: "D.C.・Fine",
+        dsFine: "D.S.・Fine",
+        dcCoda: "D.C.・Coda",
+        dsCoda: "D.S.・Coda",
+        mixed: "複合問題"
+      };
+      return labels[category] || "反復問題";
+    }
+
+    function createBalancedTeacherRepeatSelection() {
+      const pool = getTeacherRepeatPool();
+      const categoryPlan = [
+        "simpleRepeat",
+        "firstSecondEnding",
+        "dcFine",
+        "dsFine",
+        "dcCoda",
+        "dsCoda"
+      ];
+      const selected = [];
+
+      categoryPlan.forEach(category => {
+        const candidates = shuffleArray(pool.filter(question => question.category === category));
+        const question = candidates[0];
+        if (question) selected.push(question.id);
+      });
+
+      if (selected.length < TEACHER_TEST_REPEAT_COUNT) {
+        const selectedSet = new Set(selected);
+        const rest = shuffleArray(pool.filter(question => !selectedSet.has(question.id)));
+        selected.push(...rest.slice(0, TEACHER_TEST_REPEAT_COUNT - selected.length).map(question => question.id));
+      }
+
+      return selected.slice(0, TEACHER_TEST_REPEAT_COUNT);
+    }
+
+    function saveTeacherRepeatSelection() {
+      safeStorage.setItem(TEACHER_TEST_REPEAT_SELECTION_KEY, JSON.stringify(teacherTestRepeatQuestionIds));
+    }
+
+    function loadTeacherRepeatSelection() {
+      const validIds = new Set(getTeacherRepeatPool().map(question => question.id));
+      let savedIds = [];
+
+      try {
+        const saved = JSON.parse(safeStorage.getItem(TEACHER_TEST_REPEAT_SELECTION_KEY) || "[]");
+        if (Array.isArray(saved)) savedIds = saved.map(String);
+      } catch (error) {
+        savedIds = [];
+      }
+
+      const uniqueValidIds = [...new Set(savedIds.filter(id => validIds.has(id)))];
+      teacherTestRepeatQuestionIds = uniqueValidIds.length === TEACHER_TEST_REPEAT_COUNT
+        ? uniqueValidIds
+        : createBalancedTeacherRepeatSelection();
+
+      saveTeacherRepeatSelection();
+      renderTeacherRepeatQuestions();
+    }
+
+    function getTeacherRepeatQuestionById(questionId) {
+      return getTeacherRepeatPool().find(question => question.id === questionId) || null;
+    }
+
+    function renderTeacherRepeatQuestions() {
+      if (!teacherRepeatQuestionList) return;
+
+      teacherRepeatQuestionList.innerHTML = teacherTestRepeatQuestionIds.map((questionId, index) => {
+        const question = getTeacherRepeatQuestionById(questionId);
+        if (!question) return "";
+        const answerIndex = question.choices.indexOf(question.answer);
+        const answerLabel = getTeacherChoiceLabel(answerIndex);
+        const choices = question.choices.map((choice, choiceIndex) =>
+          `<div class="teacher-repeat-choice">${getTeacherChoiceLabel(choiceIndex)}．${choice}</div>`
+        ).join("");
+
+        return `
+          <article class="teacher-repeat-question-card">
+            <div class="teacher-repeat-question-head">
+              <div><span>問${index + 1}</span><span class="teacher-repeat-question-meta">${getTeacherRepeatCategoryLabel(question.category)}</span></div>
+              <button class="teacher-note-change-btn" type="button" onclick="replaceTeacherRepeatQuestion(${index})">この問題を変更</button>
+            </div>
+            <div class="teacher-repeat-staff">${createRepeatOrderHtml(question.display)}</div>
+            <div class="teacher-repeat-choices">${choices}</div>
+            <div class="teacher-repeat-answer">正答：${answerLabel}（${question.answer}）</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function regenerateTeacherRepeatQuestions() {
+      if (teacherTestRepeatQuestionIds.length === TEACHER_TEST_REPEAT_COUNT) {
+        const confirmed = confirm("反復6問をすべて選び直しますか？");
+        if (!confirmed) return;
+      }
+
+      teacherTestRepeatQuestionIds = createBalancedTeacherRepeatSelection();
+      saveTeacherRepeatSelection();
+      renderTeacherRepeatQuestions();
+    }
+
+    function replaceTeacherRepeatQuestion(index) {
+      const currentQuestion = getTeacherRepeatQuestionById(teacherTestRepeatQuestionIds[index]);
+      if (!currentQuestion) return;
+
+      const usedIds = new Set(teacherTestRepeatQuestionIds);
+      let candidates = getTeacherRepeatPool().filter(question =>
+        question.id !== currentQuestion.id &&
+        !usedIds.has(question.id) &&
+        question.category === currentQuestion.category
+      );
+
+      if (candidates.length === 0) {
+        candidates = getTeacherRepeatPool().filter(question =>
+          question.id !== currentQuestion.id && !usedIds.has(question.id)
+        );
+      }
+
+      if (candidates.length === 0) return;
+      const replacement = candidates[Math.floor(Math.random() * candidates.length)];
+      teacherTestRepeatQuestionIds[index] = replacement.id;
+      saveTeacherRepeatSelection();
+      renderTeacherRepeatQuestions();
+    }
+
+    function createDefaultTeacherRhythmSettings() {
+      return {
+        prompt: "4/4拍子・4小節のリズムを作りなさい。各小節が4拍になるように、音符や休符を用いて書きなさい。"
+      };
+    }
+
+    function createTeacherRhythmStaffHtml() {
+      const staffLeft = 42;
+      const staffRight = 1160;
+      const staffTop = 42;
+      const lineGap = 16;
+      const musicStart = 220;
+      const measureWidth = (staffRight - musicStart) / 4;
+      const staffBottom = staffTop + lineGap * 4;
+      const staffLines = Array.from({ length: 5 }, (_, index) => {
+        const y = staffTop + index * lineGap;
+        return `<line x1="${staffLeft}" y1="${y}" x2="${staffRight}" y2="${y}" stroke="#202436" stroke-width="2.2" />`;
+      }).join("");
+      const innerBarLines = Array.from({ length: 3 }, (_, index) => {
+        const x = musicStart + (index + 1) * measureWidth;
+        return `<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffBottom}" stroke="#202436" stroke-width="2.4" />`;
+      }).join("");
+
+      return `
+        <svg viewBox="0 0 1200 145" role="img" aria-label="ト音記号・4分の4拍子・4小節の空五線">
+          ${staffLines}
+          <text x="51" y="106" font-size="82" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>
+          <text x="142" y="69" text-anchor="middle" font-size="36" font-family="'Times New Roman', Georgia, serif" font-weight="900" fill="#202436">4</text>
+          <text x="142" y="104" text-anchor="middle" font-size="36" font-family="'Times New Roman', Georgia, serif" font-weight="900" fill="#202436">4</text>
+          ${innerBarLines}
+          <line x1="${staffRight - 7}" y1="${staffTop}" x2="${staffRight - 7}" y2="${staffBottom}" stroke="#202436" stroke-width="2.2" />
+          <line x1="${staffRight}" y1="${staffTop}" x2="${staffRight}" y2="${staffBottom}" stroke="#202436" stroke-width="4.5" />
+        </svg>
+      `;
+    }
+
+    function renderTeacherRhythmQuestion() {
+      const prompt = createDefaultTeacherRhythmSettings().prompt;
+      if (teacherRhythmPromptPreview) teacherRhythmPromptPreview.textContent = prompt;
+      if (teacherRhythmStaffPreview) teacherRhythmStaffPreview.innerHTML = createTeacherRhythmStaffHtml();
+    }
+
+    function loadTeacherRhythmSettings() {
+      const settings = createDefaultTeacherRhythmSettings();
+      renderTeacherRhythmQuestion();
+      return settings;
+    }
+
+    function saveTeacherRhythmSettings() {
+      renderTeacherRhythmQuestion();
+    }
+
+    function createTeacherPrintPageHeader(sectionTitle, pageNumber, settings, includeStudentMeta = false) {
+      const title = escapeHtml(settings.title || "楽典テスト");
+
+      if (includeStudentMeta) {
+        const dateLabel = escapeHtml(formatTeacherTestDateWithWeekday(settings.testDate));
+        return `
+          <header class="teacher-print-first-header">
+            <div class="teacher-print-first-header-line">
+              <span>${title}</span>
+              <span>${dateLabel}</span>
+            </div>
+            <div class="teacher-print-first-name-line">
+              <div class="teacher-print-first-class-fields">
+                <span class="teacher-print-first-field"><span class="teacher-print-first-field-blank" aria-hidden="true"></span><span>年</span></span>
+                <span class="teacher-print-first-field"><span class="teacher-print-first-field-blank" aria-hidden="true"></span><span>組</span></span>
+                <span class="teacher-print-first-field"><span class="teacher-print-first-field-blank" aria-hidden="true"></span><span>番</span></span>
+              </div>
+              <div class="teacher-print-first-name-field">
+                <span>名前：</span>
+                <span class="teacher-print-first-name-blank" aria-hidden="true"></span>
+              </div>
+            </div>
+          </header>
+        `;
+      }
+
+      return `
+        <header class="teacher-print-page-header">
+          <div>
+            <h1 class="teacher-print-main-title">${title}</h1>
+            <div class="teacher-print-page-title">${escapeHtml(sectionTitle)}</div>
+          </div>
+          <div class="teacher-print-page-number">${pageNumber} / 5</div>
+        </header>
+      `;
+    }
+
+    function createTeacherMelodyPrintAccidentalHtml(accidentalType, x, y) {
+      if (!accidentalType || accidentalType === "none") return "";
+
+      const config = accidentalType === "sharp"
+        ? { glyph: "♯", offsetX: 31, offsetY: 1, fontSize: 29, label: "シャープ" }
+        : accidentalType === "flat"
+          ? { glyph: "♭", offsetX: 38, offsetY: -5, fontSize: 36, label: "フラット" }
+          : { glyph: "♮", offsetX: 31, offsetY: 1, fontSize: 30, label: "ナチュラル" };
+
+      return `<text aria-label="${config.label}" x="${x - config.offsetX}" y="${y + config.offsetY}" font-size="${config.fontSize}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" font-weight="700" fill="#202436" dominant-baseline="middle" text-rendering="geometricPrecision">${config.glyph}</text>`;
+    }
+
+    function createTeacherMelodyPrintHtml(question) {
+      const notes = Array.isArray(question.notes) ? question.notes : [];
+      const measureCount = question.measureCount || 2;
+      const compactLayout = true;
+      const lineGap = 11;
+      const staffTop = 66;
+      const staffLeft = 10;
+      const clefWidth = 48;
+      const musicLeft = staffLeft + clefWidth;
+      const svgWidth = 940;
+      const svgHeight = 205;
+      const measureWidth = (svgWidth - musicLeft - 10) / measureCount;
+      const notePositions = {};
+      let svg = "";
+
+      svg += [0, 1, 2, 3, 4]
+        .map(index => `<line x1="${staffLeft}" y1="${staffTop + index * lineGap}" x2="${svgWidth - 10}" y2="${staffTop + index * lineGap}" stroke="#111" stroke-width="2.4" />`)
+        .join("");
+      svg += createMelodyClefHtml(question.clef, staffLeft, staffTop, lineGap, compactLayout);
+
+      for (let measure = 1; measure <= measureCount; measure++) {
+        const x = musicLeft + measure * measureWidth;
+        const isFinal = measure === measureCount;
+        if (isFinal) {
+          svg += `<line x1="${x - 6}" y1="${staffTop}" x2="${x - 6}" y2="${staffTop + lineGap * 4}" stroke="#111" stroke-width="2" />`;
+        }
+        svg += `<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffTop + lineGap * 4}" stroke="#111" stroke-width="${isFinal ? 4 : 2.4}" />`;
+      }
+
+      notes.forEach((note, index) => {
+        const measureX = musicLeft + note.measureIndex * measureWidth;
+        const measureInnerLeft = measureX + 18;
+        const measureInnerRight = measureX + measureWidth - 14;
+        const x = measureInnerLeft + (note.slot / 16) * (measureInnerRight - measureInnerLeft);
+        const y = staffTop + (note.y - 42) * 0.56;
+        notePositions[note.index] = { x, y, row: 0 };
+        svg += `${createMelodyLedgerLines(x, y, staffTop, compactLayout)}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index), compactLayout, true)}${createTeacherMelodyPrintAccidentalHtml(note.accidental, x, y)}`;
+        svg += `<line x1="${x - 16}" y1="186" x2="${x + 16}" y2="186" stroke="#111" stroke-width="1.4" stroke-linecap="round" />`;
+      });
+      svg += createMelodyBeamHtml(notes, notePositions, compactLayout);
+
+      return `<svg viewBox="0 0 ${svgWidth} ${svgHeight}" role="img" aria-label="${escapeHtml(question.clefLabel)}・${measureCount}小節の旋律" style="overflow:visible;">${svg}</svg>`;
+    }
+
+    function createTeacherStudentPrintHtml() {
+      const settings = getTeacherTestSettingsFromInputs();
+      const noteQuestions = teacherTestNoteQuestionIds.map(getTeacherNoteQuestionById).filter(Boolean);
+      const noteExampleQuestions = teacherTestNoteExampleIds.map(getTeacherNoteQuestionById).filter(Boolean);
+      const melodyQuestions = teacherTestMelodyQuestionIds.map(getTeacherMelodyQuestionById).filter(Boolean);
+      const noteValueQuestions = teacherTestNoteValueQuestionIds.map(getTeacherNoteValueQuestionById).filter(Boolean);
+      const repeatQuestions = teacherTestRepeatQuestionIds.map(getTeacherRepeatQuestionById).filter(Boolean);
+
+      const noteExampleHtml = noteExampleQuestions.map((question, index) => {
+        const answer = question.correctAnswers?.[0] || question.answer || "";
+        const label = index === 0 ? "例題（ト音記号）" : "例題（ヘ音記号）";
+        return `
+          <article class="teacher-print-note-example-item">
+            <div class="teacher-print-note-example-label">${label}</div>
+            <div class="teacher-print-note-example-staff">${createStaffHtml(question.display, { forceVectorClef: true })}</div>
+            <div class="teacher-print-note-example-answer">答え：${escapeHtml(answer)}</div>
+          </article>
+        `;
+      }).join("");
+
+      const noteHtml = noteQuestions.map((question, index) => `
+        <article class="teacher-print-note-item">
+          <div class="teacher-print-question-number">問${index + 1}</div>
+          <div class="teacher-print-note-staff">${createStaffHtml(question.display, { forceVectorClef: true })}</div>
+          <div class="teacher-print-answer-line"><span>（　　　　　　）</span></div>
+        </article>
+      `).join("");
+
+      const createMelodyPrintItems = (questions, startIndex) => questions.map((question, localIndex) => `
+        <article class="teacher-print-melody-item">
+          <div class="teacher-print-question-number">問${startIndex + localIndex + 1}</div>
+          <div class="teacher-print-melody-staff">${createTeacherMelodyPrintHtml(question)}</div>
+        </article>
+      `).join("");
+      const firstPageMelodyHtml = createMelodyPrintItems(melodyQuestions.slice(0, 4), 0);
+      const secondPageMelodyHtml = createMelodyPrintItems(melodyQuestions.slice(4, 5), 4);
+
+      const noteValueHtml = noteValueQuestions.map((question, index) => {
+        const choices = question.choices.map((choice, choiceIndex) =>
+          `<div>${getTeacherChoiceLabel(choiceIndex)}．${escapeHtml(choice)}</div>`
+        ).join("");
+        return `
+          <article class="teacher-print-note-value-item">
+            <div class="teacher-print-question-number">問${index + 1}</div>
+            <div class="teacher-print-note-value-symbol">${createNoteValueHtml(question.display, { forceVector: true })}</div>
+            <div class="teacher-print-choice-grid">${choices}</div>
+            <div class="teacher-print-note-value-answer-line">（　　　　　　）</div>
+          </article>
+        `;
+      }).join("");
+
+      const createTeacherRepeatChoiceBodyHtml = choice => {
+        const tokens = String(choice || "").split(/\s*→\s*/).filter(Boolean);
+        if (tokens.length === 0) return "";
+        if (tokens.length === 1) return `<span class="teacher-print-repeat-seq-tail">${escapeHtml(tokens[0])}</span>`;
+
+        const leadingSteps = tokens.slice(0, -2)
+          .map(token => `<span class="teacher-print-repeat-seq-step">${escapeHtml(token)} →</span>`)
+          .join(" ");
+        const tail = `<span class="teacher-print-repeat-seq-tail">${escapeHtml(tokens[tokens.length - 2])} → ${escapeHtml(tokens[tokens.length - 1])}</span>`;
+        return leadingSteps ? `${leadingSteps} ${tail}` : tail;
+      };
+
+      const createTeacherRepeatChoiceHtml = (choice, choiceIndex) => {
+        const body = createTeacherRepeatChoiceBodyHtml(choice);
+        return `<div class="teacher-print-repeat-choice"><span class="teacher-print-repeat-choice-label">${getTeacherChoiceLabel(choiceIndex)}．</span><span class="teacher-print-repeat-choice-body">${body}</span></div>`;
+      };
+
+      const createRepeatHtml = (questions, startIndex) => questions.map((question, localIndex) => {
+        const choices = question.choices.map((choice, choiceIndex) =>
+          createTeacherRepeatChoiceHtml(choice, choiceIndex)
+        ).join("");
+        return `
+          <article class="teacher-print-repeat-item">
+            <div class="teacher-print-question-number">問${startIndex + localIndex + 1}</div>
+            <div class="teacher-print-repeat-staff">${createRepeatOrderHtml(question.display)}</div>
+            <div class="teacher-print-repeat-choices">${choices}</div>
+            <div class="teacher-print-repeat-answer-line">（　　　　　　）</div>
+          </article>
+        `;
+      }).join("");
+
+      return `
+        <section class="teacher-print-page">
+          ${createTeacherPrintPageHeader("Ⅰ・Ⅱ 記述式", 1, settings, true)}
+          <h2 class="teacher-print-section-heading">Ⅰ. 次の音をイタリア音名で答えよ。</h2>
+          <div class="teacher-print-note-example-grid">${noteExampleHtml}</div>
+          <div class="teacher-print-note-grid">${noteHtml}</div>
+
+          <div class="teacher-print-melody-section">
+            <h2 class="teacher-print-section-heading">Ⅱ.次の旋律の音をイタリア音名で答えよ。</h2>
+            <div class="teacher-print-melody-list">${firstPageMelodyHtml}</div>
+          </div>
+        </section>
+
+        <section class="teacher-print-page teacher-print-note-value-page">
+          <div class="teacher-print-melody-continuation">
+            <div class="teacher-print-melody-list">${secondPageMelodyHtml}</div>
+          </div>
+          <h2 class="teacher-print-section-heading">Ⅲ. 次の音符・休符の音価として正しいものを、ア〜エから一つ選びなさい。</h2>
+          <div class="teacher-print-note-value-grid">${noteValueHtml}</div>
+          <div class="teacher-print-score-board">
+            <div class="teacher-print-score-cell"><div class="teacher-print-score-label">Ⅰ</div><div class="teacher-print-score-write-area"></div></div>
+            <div class="teacher-print-score-cell"><div class="teacher-print-score-label">Ⅱ</div><div class="teacher-print-score-write-area"></div></div>
+            <div class="teacher-print-score-cell"><div class="teacher-print-score-label">Ⅲ</div><div class="teacher-print-score-write-area"></div></div>
+            <div class="teacher-print-score-cell"><div class="teacher-print-score-label">Ⅳ</div><div class="teacher-print-score-write-area"></div></div>
+            <div class="teacher-print-score-cell"><div class="teacher-print-score-label">Ⅴ</div><div class="teacher-print-score-write-area"></div></div>
+            <div class="teacher-print-score-cell total">
+              <div class="teacher-print-score-label">TOTAL</div>
+              <div class="teacher-print-score-write-area"></div>
+              <div class="teacher-print-score-total-denominator">／100</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="teacher-print-page teacher-print-repeat-page">
+          <h2 class="teacher-print-section-heading">Ⅳ. 次の楽譜の正しい演奏順を、ア〜カから一つ選びなさい。</h2>
+          <div class="teacher-print-repeat-list">${createRepeatHtml(repeatQuestions.slice(0, 4), 0)}</div>
+        </section>
+
+        <section class="teacher-print-page teacher-print-repeat-rhythm-page">
+          <div class="teacher-print-repeat-list">${createRepeatHtml(repeatQuestions.slice(4, 6), 4)}</div>
+          <div class="teacher-print-rhythm-section">
+            <h2 class="teacher-print-section-heading">Ⅴ. ${escapeHtml(createDefaultTeacherRhythmSettings().prompt)}</h2>
+            <p class="teacher-print-rhythm-attention">※全音符・全休符は使用不可。また、各小節に新しいリズムを追加すること。</p>
+            <div class="teacher-print-rhythm-staff">${createTeacherRhythmStaffHtml()}</div>
+            <div class="teacher-print-rhythm-workspace" aria-label="リズム創作用余白"></div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderTeacherStudentPrintSheet() {
+      const printSheet = document.getElementById("teacherStudentPrintSheet");
+      if (!printSheet) return false;
+      printSheet.innerHTML = createTeacherStudentPrintHtml();
+      printSheet.setAttribute("aria-hidden", "false");
+      return true;
+    }
+
+    let teacherPrintOriginalDocumentTitle = "";
+
+    async function printTeacherStudentTestPdf() {
+      if (!isTeacherTestPcAvailable()) {
+        alert("PDF出力はPC版でのみ利用できます。");
+        return;
+      }
+
+      await ensureRepeatSymbolAssets();
+      if (!renderTeacherStudentPrintSheet()) return;
+
+      const settings = getTeacherTestSettingsFromInputs();
+      teacherPrintOriginalDocumentTitle = document.title;
+      document.title = settings.title || "楽典テスト";
+      document.body.classList.add("teacher-test-printing");
+
+      await new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
+      window.print();
+    }
+
+    function finishTeacherStudentPrint() {
+      if (!document.body.classList.contains("teacher-test-printing")) return;
+      document.body.classList.remove("teacher-test-printing");
+      const printSheet = document.getElementById("teacherStudentPrintSheet");
+      if (printSheet) printSheet.setAttribute("aria-hidden", "true");
+      if (teacherPrintOriginalDocumentTitle) {
+        document.title = teacherPrintOriginalDocumentTitle;
+        teacherPrintOriginalDocumentTitle = "";
+      }
+    }
+
+    function isTeacherTestPcAvailable() {
+      const viewportWidth = Math.max(
+        Number(window.innerWidth || 0),
+        Number(document.documentElement?.clientWidth || 0)
+      );
+      return viewportWidth >= 900;
+    }
+
+    function resetTeacherEntryGesture() {
+      teacherEntryClickCount = 0;
+      teacherEntryStartedAt = 0;
+    }
+
+    function handleTeacherEntryGesture() {
+      if (!isTeacherTestPcAvailable() || !homeScreen || !homeScreen.classList.contains("active")) {
+        resetTeacherEntryGesture();
+        return;
+      }
+
+      const now = Date.now();
+      if (!teacherEntryStartedAt || now - teacherEntryStartedAt > TEACHER_ENTRY_WINDOW_MS) {
+        teacherEntryStartedAt = now;
+        teacherEntryClickCount = 1;
+      } else {
+        teacherEntryClickCount += 1;
+      }
+
+      if (teacherEntryClickCount < TEACHER_ENTRY_REQUIRED_CLICKS) return;
+
+      resetTeacherEntryGesture();
+      showTeacherTestScreen();
+    }
+
+    function showTeacherTestScreen() {
+      if (!isTeacherTestPcAvailable() || !teacherTestScreen) return;
+      loadTeacherTestSettings();
+      loadTeacherNoteSelection();
+      loadTeacherNoteExampleSelection();
+      loadTeacherMelodySelection();
+      loadTeacherNoteValueOrder();
+      loadTeacherRepeatSelection();
+      loadTeacherRhythmSettings();
+      showScreen(teacherTestScreen);
+      ensureRepeatSymbolAssets().then(() => {
+        if (!teacherTestScreen.classList.contains("active")) return;
+        renderTeacherNoteExamples();
+        renderTeacherNoteQuestions();
+        renderTeacherMelodyQuestions();
+        renderTeacherNoteValueQuestions();
+        renderTeacherRepeatQuestions();
+        renderTeacherRhythmQuestion();
+      });
+    }
+
+    function closeTeacherTestScreen() {
+      resetTeacherEntryGesture();
+      showScreen(homeScreen);
+    }
+
     function handleCardKey(event, mode) {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -5092,7 +7342,7 @@
         app.classList.remove("melody-wide");
       }
 
-      [loginScreen, homeScreen, historyScreen, noteNameModeScreen, melodyNameOptionScreen, melodyNameScreen, rhythmScreen, quizScreen, resultScreen, completionScreen]
+      [loginScreen, homeScreen, teacherTestScreen, historyScreen, noteNameModeScreen, melodyNameOptionScreen, melodyNameScreen, rhythmScreen, quizScreen, resultScreen, completionScreen]
         .filter(Boolean)
         .forEach(el => el.classList.remove("active"));
 
@@ -5253,6 +7503,8 @@
     }
 
     function startQuiz(mode) {
+      // 生徒用ではイタリア音名だけ開放する。音価・反復は従来どおり。
+      if (["noteNameGerman", "noteNameEnglish", "noteNameMix"].includes(mode)) return;
       currentMode = mode;
       currentQuestions = buildQuestionSet(mode, selectedQuestionCount);
       currentIndex = 0;
@@ -5658,13 +7910,13 @@
       ).join("");
 
       const accidentalText = accidental === "sharp"
-        ? `<text x="${noteX - 62}" y="${y}" font-size="34" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">♯</text>`
+        ? `<text x="${noteX - 66}" y="${y}" font-size="40" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">♯</text>`
         : accidental === "flat"
-          ? `<text x="${noteX - 60}" y="${y}" font-size="42" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">♭</text>`
+          ? `<text x="${noteX - 64}" y="${y}" font-size="50" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">♭</text>`
           : "";
 
       const referenceNoteHtml = options.showReferenceNote ? createReferenceNoteHtml(isBass) : "";
-      const clef = createNoteNameClefHtml(clefName);
+      const clef = options.forceVectorClef ? createTeacherPrintVectorClefHtml(clefName) : createNoteNameClefHtml(clefName);
 
       return `
         <div class="staff-wrap" aria-label="${positionLabel}">
@@ -5703,6 +7955,13 @@
     }
 
 
+    function createTeacherPrintVectorClefHtml(clefName) {
+      const isBass = clefName === "ヘ音記号";
+      return isBass
+        ? `<text x="97" y="100" font-size="86" font-family="'Noto Music', 'Segoe UI Symbol', 'Times New Roman', serif" fill="#202436" transform="scale(0.9, 1)" text-rendering="geometricPrecision">𝄢</text>`
+        : `<text x="80" y="126" font-size="120" font-family="'Noto Music', 'Segoe UI Symbol', 'Times New Roman', serif" fill="#202436" text-rendering="geometricPrecision">𝄞</text>`;
+    }
+
     function createNoteNameClefHtml(clefName) {
       const isBass = clefName === "ヘ音記号";
       const assetPath = isBass ? repeatSymbolAssetPaths.heon : repeatSymbolAssetPaths.toon;
@@ -5729,7 +7988,7 @@
         : `<text x="${compactLayout ? 86 : 80}" y="${compactLayout ? 118 : 126}" font-size="${compactLayout ? 82 : 120}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436">𝄞</text>`;
     }
 
-    function createNoteValueHtml(type) {
+    function createNoteValueHtml(type, options = {}) {
       const noteX = 280;
       const noteY = 112;
       const stemLength = 66;
@@ -5747,7 +8006,7 @@
       const imagePath = imageInfo ? repeatSymbolAssetPaths[imageInfo.key] : null;
       let noteParts = "";
 
-      if (imageInfo && imagePath) {
+      if (!options.forceVector && imageInfo && imagePath) {
         noteParts = `<image aria-label="${imageInfo.label}" href="${imagePath}" x="${imageInfo.x}" y="${imageInfo.y}" width="${imageInfo.width}" height="${imageInfo.height}" preserveAspectRatio="xMidYMid meet" />`;
       } else if (type === "wholeRest") {
         // 全休符は第4線（上から2本目）から下へぶら下げる。
@@ -6639,7 +8898,7 @@
       return note.y <= 82 ? "down" : "up";
     }
 
-    function rhythmStemAndFlagHtml(note, x, y, beamed, compactLayout = false) {
+    function rhythmStemAndFlagHtml(note, x, y, beamed, compactLayout = false, transparentHollow = false) {
       const filled = !["whole", "half"].includes(note.rhythmType);
       const direction = getMelodyNoteStemDirection(note);
       const stemLength = compactLayout ? 40 : 54;
@@ -6651,7 +8910,7 @@
       const strokeWidth = compactLayout ? 2.1 : 3;
       const head = filled
         ? `<ellipse cx="${x}" cy="${y}" rx="${noteHeadRx}" ry="${noteHeadRy}" transform="rotate(-18 ${x} ${y})" fill="#202436" />`
-        : `<ellipse cx="${x}" cy="${y}" rx="${hollowHeadRx}" ry="${noteHeadRy}" transform="rotate(-18 ${x} ${y})" fill="white" stroke="#202436" stroke-width="${headStroke}" />`;
+        : `<ellipse cx="${x}" cy="${y}" rx="${hollowHeadRx}" ry="${noteHeadRy}" transform="rotate(-18 ${x} ${y})" fill="${transparentHollow ? "none" : "white"}" stroke="#202436" stroke-width="${headStroke}" />`;
       let html = head;
       if (note.rhythmType !== "whole" && !beamed) {
         const stemX = direction === "up" ? x + stemOffset : x - stemOffset;
@@ -6782,7 +9041,7 @@
       return lines.join("");
     }
 
-    function createMelodyAccidentalHtml(accidentalType, x, y, compactLayout) {
+    function createMelodyAccidentalHtml(accidentalType, x, y, compactLayout, forceVector = false) {
       if (!accidentalType || accidentalType === "none") return "";
 
       const imageConfig = accidentalType === "sharp"
@@ -6812,7 +9071,7 @@
               offsetY: compactLayout ? 36 : 52
             };
 
-      if (imageConfig.path) {
+      if (imageConfig.path && !forceVector) {
         return `<image aria-label="${imageConfig.label}" href="${imageConfig.path}" x="${x - imageConfig.offsetX}" y="${y - imageConfig.offsetY}" width="${imageConfig.width}" height="${imageConfig.height}" preserveAspectRatio="xMidYMid meet" />`;
       }
 
@@ -6825,7 +9084,7 @@
       return `<text x="${x - (compactLayout ? 18 : 34)}" y="${y + 1}" font-size="${compactLayout ? 18 : 34}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" fill="#202436" dominant-baseline="middle">♮</text>`;
     }
 
-    function createMelodyClefHtml(clef, staffLeft, staffTop, lineGap, compactLayout) {
+    function createMelodyClefHtml(clef, staffLeft, staffTop, lineGap, compactLayout, forceVector = false) {
       const isBass = clef === "bass";
       const assetPath = isBass ? repeatSymbolAssetPaths.heon : repeatSymbolAssetPaths.toon;
 
@@ -7167,8 +9426,13 @@
       return Array.from({ length: 4 }, () => []);
     }
 
+    const disabledRhythmToolTypes = new Set(["wholeNote", "wholeRest"]);
+
     function getVisibleRhythmTools() {
-      return rhythmTools.filter(tool => selectedRhythmDifficulty === "hard" || tool.difficulty !== "hard");
+      return rhythmTools.filter(tool =>
+        !disabledRhythmToolTypes.has(tool.type) &&
+        (selectedRhythmDifficulty === "hard" || tool.difficulty !== "hard")
+      );
     }
 
     function getRhythmSlotCount() {
@@ -7259,7 +9523,7 @@
       return value.map(measure => {
         if (!Array.isArray(measure)) return [];
         return measure
-          .filter(item => item && getRhythmTool(item.type))
+          .filter(item => item && isRhythmToolAvailable(item.type))
           .map(item => {
             const tool = getRhythmTool(item.type);
             return {
@@ -7395,6 +9659,7 @@
     }
 
     function selectRhythmTool(type) {
+      if (!isRhythmToolAvailable(type)) return;
       selectedRhythmToolType = selectedRhythmToolType === type ? null : type;
       updateRhythmPlacementModeClass();
       renderRhythmTools();
@@ -7418,6 +9683,10 @@
     }
 
     function handleRhythmToolDragStart(event, type) {
+      if (!isRhythmToolAvailable(type)) {
+        event.preventDefault();
+        return;
+      }
       clearRhythmToolSelectionForDrag();
       activeRhythmPaletteDragType = type;
       if (event.currentTarget) event.currentTarget.classList.add("dragging");
@@ -9225,7 +11494,18 @@
       stopNoteNameSmoothScroll();
     }
 
+    window.addEventListener("afterprint", finishTeacherStudentPrint);
+
     function setupEventListeners() {
+      if (appTitle) {
+        appTitle.addEventListener("click", handleTeacherEntryGesture);
+      }
+
+      [teacherTestTitleInput, teacherTestDateInput].filter(Boolean).forEach(input => {
+        input.addEventListener("input", saveTeacherTestSettings);
+        input.addEventListener("change", saveTeacherTestSettings);
+      });
+
       if (studentNameInput) {
         studentNameInput.addEventListener("keydown", event => {
           if (event.key !== "Enter") return;
@@ -9295,11 +11575,27 @@
       window.addEventListener("blur", () => updateRhythmShiftKeyState(false));
     }
 
-    loadRhythmDifficultySetting();
-    loadMelodyOptionSettings();
-    ensureRepeatSymbolAssets();
     setupEventListeners();
-    loadSavedStudent();
+
+    [
+      loadRhythmDifficultySetting,
+      loadMelodyOptionSettings,
+      loadTeacherTestSettings,
+      loadTeacherNoteSelection,
+      loadTeacherNoteExampleSelection,
+      loadTeacherRhythmSettings,
+      loadSavedStudent
+    ].forEach(initialize => {
+      try {
+        initialize();
+      } catch (error) {
+        console.error("初期化処理でエラーが発生しました。", error);
+      }
+    });
+
+    ensureRepeatSymbolAssets().catch(error => {
+      console.error("記号assetの読み込みでエラーが発生しました。", error);
+    });
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
