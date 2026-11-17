@@ -6653,7 +6653,7 @@
         const x = measureInnerLeft + (note.slot / 16) * (measureInnerRight - measureInnerLeft);
         const y = staffTop + (note.y - 42) * 0.56;
         notePositions[note.index] = { x, y, row: 0 };
-        const accidentalHtml = createMelodyAccidentalHtml(note.accidental, x, y, compactLayout);
+        const accidentalHtml = createTeacherMelodyPrintAccidentalHtml(note.accidental, x, y);
         svg += `${createMelodyLedgerLines(x, y, staffTop, compactLayout)}${accidentalHtml}${rhythmStemAndFlagHtml(note, x, y, shouldMelodyNoteBeBeamed(notes, index), compactLayout)}`;
       });
       svg += createMelodyBeamHtml(notes, notePositions, compactLayout);
@@ -7013,10 +7013,10 @@
       if (!accidentalType || accidentalType === "none") return "";
 
       const config = accidentalType === "sharp"
-        ? { glyph: "♯", offsetX: 31, offsetY: 1, fontSize: 29, label: "シャープ" }
+        ? { glyph: "♯", offsetX: 40, offsetY: -1, fontSize: 34, label: "シャープ" }
         : accidentalType === "flat"
-          ? { glyph: "♭", offsetX: 38, offsetY: -5, fontSize: 36, label: "フラット" }
-          : { glyph: "♮", offsetX: 31, offsetY: 1, fontSize: 30, label: "ナチュラル" };
+          ? { glyph: "♭", offsetX: 46, offsetY: -12, fontSize: 42, label: "フラット" }
+          : { glyph: "♮", offsetX: 39, offsetY: -3, fontSize: 35, label: "ナチュラル" };
 
       return `<text aria-label="${config.label}" x="${x - config.offsetX}" y="${y + config.offsetY}" font-size="${config.fontSize}" font-family="'Noto Music', 'Bravura', 'Times New Roman', Georgia, serif" font-weight="700" fill="#202436" dominant-baseline="middle" text-rendering="geometricPrecision">${config.glyph}</text>`;
     }
